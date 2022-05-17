@@ -1,6 +1,11 @@
 #!/bin/bash
+set -e -x
+
+export BASE_DIR=$HOME
+export DEST_DIR="$PWD/dist"
 
 brew install coreutils # for readlink and realpath
+export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 
 export JDKDIR=$JAVA_HOME_11_X64
 
@@ -8,7 +13,7 @@ export PLAT_OS=macos
 export ARCH=x86_64
 
 ./releng/build_java_bindings.sh
-X86_DEST=/io/dist/*/$PLAT_OS/$ARCH
+X86_DEST=$DEST_DIR/*/$PLAT_OS/$ARCH
 
 
 export ARCH=aarch64

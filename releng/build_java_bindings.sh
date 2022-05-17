@@ -1,7 +1,10 @@
 #!/bin/bash
 set -e -x
 
-# docker run -it -v $(pwd):/io:Z ghcr.io/diamondlightsource/manylinux-dls-2014_x86_64:latest /bin/bash /releng/build_linux_bindings.sh
+# docker run -it -env="ARCH=x86_64" --env="PLAT_OS=linux" -v $(pwd):/io:Z ghcr.io/diamondlightsource/manylinux-dls-2014_x86_64:latest /bin/bash /releng/build_linux_bindings.sh
+
+# need to define where other source is checked out and built (BASE_DIR)
+# and where artifacts should be placed (DEST_DIR)
 
 # define TESTCOMP to test compression (takes a long time)
 
@@ -46,10 +49,10 @@ esac
 JBIN=$(readlink -f `which java`)
 export JDKDIR=$(dirname $(dirname $(dirname $JBIN)))
 
-MS=/build/src
-MY=/build/opt/$PLAT_OS
+MS=$BASE_DIR/build/src
+export MY=$BASE_DIR/build/opt/$PLAT_OS
 MA=$MY/include,$MY/lib
-H5=/build/hdf5/$PLAT_OS
+export H5=$BASE_DIR/build/hdf5/$PLAT_OS
 
 mkdir -p $MS
 mkdir -p $MY
@@ -124,7 +127,6 @@ rm -f $MY/lib/libzstd.${LIBEXT}*
 popd
 
 
-yum install -y cmake3
 
 download_check_extract_pushd c-blosc-$CB_VER v${CB_VER}.tar.gz $CB_CHK "https://github.com/Blosc/c-blosc/archive/refs/tags"
 mkdir -p build && cd build
@@ -162,11 +164,10 @@ make install
 popd
 
 
-
 JARFILE="$H5/lib/jarhdf5-*.jar"
 VERSION=`basename $JARFILE | sed -e 's/jarhdf5-\(.*\)\.jar/\1/g'`
 
-DEST=/io/dist/$VERSION/$PLAT_OS/$ARCH
+DEST=$DEST_DIR/$VERSION/$PLAT_OS/$ARCH
 mkdir -p $DEST
 
 cp $JARFILE $DEST
@@ -177,20 +178,18 @@ cp $H5/lib/libhdf5.setting $DEST
 cd $MS
 
 if [ -d HDF5-External-Filter-Plugins.git ]; then
-    yum install -y git
     # checkout plugins
     git clone --depth 2 -b $FP_BRANCH git@github.com:DiamondLightSource/HDF5-External-Filter-Plugins.git HDF5-External-Filter-Plugins.git
 fi
 pushd HDF5-External-Filter-Plugins.git
 
 if [ -d bitshuffle.git ]; then
-    yum install -y git
     # checkout plugins
     git clone --depth 2 -b $BS_BRANCH git@github.com:DiamondLightSource/bitshuffle.git bitshuffle.git
 fi
 
-make -d Makefile.dls MY=/build/opt H5=/build/hdf5 TGT_OS=$PLAT_OS TGT_ARCH=$ARCH clean
-make -d Makefile.dls MY=/build/opt H5=/build/hdf5 TGT_OS=$PLAT_OS TGT_ARCH=$ARCH
+make -d Makefile.dls TGT_OS=$PLAT_OS TGT_ARCH=$ARCH clean
+make -d Makefile.dls TGT_OS=$PLAT_OS TGT_ARCH=$ARCH
 if [ -z "$DONT_TEST_PLUGINS" ]; then
     pushd tests
     . check_plugins.sh

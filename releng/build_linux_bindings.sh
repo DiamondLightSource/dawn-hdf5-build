@@ -1,8 +1,14 @@
 #!/bin/bash
 set -e -x
 
+export BASE_DIR=''
+export DEST_DIR='/io/dist'
 
-./build_java_bindings.sh
+yum install -y cmake3 git
+
+cd /io
+
+./releng/build_java_bindings.sh
 
 
 if [ $ARCH == 'x64_64' ]; then
@@ -13,6 +19,6 @@ if [ $ARCH == 'x64_64' ]; then
 
     export JDKDIR=/opt/jdk-11-win32
 
-    DONT_TEST_PLUGINS=yes ./build_java_bindings.sh
+    DONT_TEST_PLUGINS=yes ./releng/build_java_bindings.sh
 fi
 
