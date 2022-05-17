@@ -5,10 +5,14 @@ export BASE_DIR=$HOME
 export DEST_DIR="$PWD/dist"
 
 brew install coreutils # for readlink and realpath
-# brew install cmake # for c-blosc
-export CMAKE=cmake
+brew install autoconf
+brew install automake
+brew install libtool
 
 export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+
+# cmake3 already installed, for c-blosc
+export CMAKE=cmake
 
 export JDKDIR=$JAVA_HOME_11_X64
 

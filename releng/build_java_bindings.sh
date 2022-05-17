@@ -149,9 +149,13 @@ popd
 # use checked out version; no need to unpack
 pushd $CHECKOUT_DIR
 
+if [ ! -x "configure" ]; then
+    ./autogen.sh
+fi
+
 mkdir -p hdf5-build-$PLAT_OS
 pushd hdf5-build-$PLAT_OS
-CFLAGS=$GLOBAL_CFLAGS $CHECKOUT_DIR/configure --prefix=$H5 --enable-shared=yes --disable-hl --enable-threadsafe --with-zlib=$MA --with-pic=yes --enable-optimization=-O2 --enable-unsupported --enable-java
+CFLAGS=$GLOBAL_CFLAGS ../configure --prefix=$H5 --enable-shared=yes --disable-hl --enable-threadsafe --with-zlib=$MA --with-pic=yes --enable-optimization=-O2 --enable-unsupported --enable-java
 if [ -n "$TESTCOMP" ]; then
     # not necessary on GH actions as runner is not root
     if false; then
