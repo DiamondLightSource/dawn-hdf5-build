@@ -179,7 +179,7 @@ mkdir -p $DEST
 cp $JARFILE $DEST
 cp -H $H5/lib/libhdf5.${LIBEXT} $DEST
 cp $H5/lib/libhdf5_java.${LIBEXT} $DEST
-cp $H5/lib/libhdf5.setting $DEST
+cp $H5/lib/libhdf5.settings $DEST
 
 cd $MS
 

@@ -40,6 +40,13 @@ jobs:
         run: |
           docker run --rm --env="ARCH=${{ matrix.ARCH }}" --env="PLAT_OS=linux" --volume $(pwd):/io ghcr.io/diamondlightsource/manylinux-dls-${{ matrix.PLAT }}_${{ matrix.ARCH }}:latest /bin/bash /io/releng/build_linux_bindings.sh
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if:  ${{ failure() }}
+        with:
+          limit-access-to-actor: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions/upload-artifact@v3
         with:
           name: hdf5-build-linux
