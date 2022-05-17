@@ -5,7 +5,7 @@ export BASE_DIR=$HOME
 export DEST_DIR="$PWD/dist"
 
 brew install coreutils # for readlink and realpath
-brew install cmake # for c-blosc
+# brew install cmake # for c-blosc
 export CMAKE=cmake
 
 export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"

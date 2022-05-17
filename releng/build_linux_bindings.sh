@@ -4,12 +4,9 @@ set -e -x
 export BASE_DIR=''
 export DEST_DIR='/io/dist'
 
-yum install -y git epel-release
-yum install -y cmake3
-
 export CMAKE=cmake3
 
-# yum install -y python34 # for testing LZ4
+# yum install -y python34 # for testing LZ4; python3-3.6 brought in by cmake
 
 cd /io
 

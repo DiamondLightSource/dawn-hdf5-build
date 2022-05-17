@@ -38,7 +38,7 @@ jobs:
       # Use docker image of Centos 6 or 7 with some devel packages as defined in PEP571 and PEP599
       - name: Make Linux bindings
         run: |
-          docker run --rm -env="ARCH=${{ matrix.ARCH }}" --env="PLAT_OS=linux" --volume $(pwd):/io ghcr.io/diamondlightsource/manylinux-dls-${{ matrix.PLAT }}_${{ matrix.ARCH }}:latest /bin/bash /io/releng/build_linux_bindings.sh
+          docker run --rm --env="ARCH=${{ matrix.ARCH }}" --env="PLAT_OS=linux" --volume $(pwd):/io ghcr.io/diamondlightsource/manylinux-dls-${{ matrix.PLAT }}_${{ matrix.ARCH }}:latest /bin/bash /io/releng/build_linux_bindings.sh
 
       - uses: actions/upload-artifact@v3
         with:

@@ -46,6 +46,8 @@ case $PLAT_OS in
     ;;
 esac
 
+CHECKOUT_DIR=$PWD
+
 JBIN=$(readlink -f `which java`)
 export JDKDIR=$(dirname $(dirname $(dirname $JBIN)))
 
@@ -145,17 +147,18 @@ popd
 
 
 # use checked out version; no need to unpack
-pushd /io
+pushd $CHECKOUT_DIR
 
 mkdir -p hdf5-build-$PLAT_OS
 pushd hdf5-build-$PLAT_OS
-CFLAGS=$GLOBAL_CFLAGS /io/configure --prefix=$H5 --enable-shared=yes --disable-hl --enable-threadsafe --with-zlib=$MA --with-pic=yes --enable-optimization=-O2 --enable-unsupported --enable-java
+CFLAGS=$GLOBAL_CFLAGS $CHECKOUT_DIR/configure --prefix=$H5 --enable-shared=yes --disable-hl --enable-threadsafe --with-zlib=$MA --with-pic=yes --enable-optimization=-O2 --enable-unsupported --enable-java
 if [ -n "$TESTCOMP" ]; then
     # not necessary on GH actions as runner is not root
     if false; then
         # remove expected exception as root can write into read-only files so no exception gets thrown (see junit-failure.txt)
-        mv /io/java/test/TestH5Fbasic.java /io/java/test/TestH5Fbasic.orig
-        awk '/testH5Fopen_read_only/{sub(/Test([^\n]*)/, "Test", last)} NR>1 {print last} {last=$0} END {print last}' /io/java/test/TestH5Fbasic.orig > /io/java/test/TestH5Fbasic.java
+        OLD_FILE=$CHECKOUT_DIR/java/test/TestH5Fbasic
+        mv ${OLD_FILE}.java ${OLD_FILE}.orig
+        awk '/testH5Fopen_read_only/{sub(/Test([^\n]*)/, "Test", last)} NR>1 {print last} {last=$0} END {print last}' ${OLD_FILE}.orig > ${OLD_FILE}.java
     fi
     make check
 fi
