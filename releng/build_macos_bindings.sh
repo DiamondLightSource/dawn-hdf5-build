@@ -1,3 +1,6 @@
+#!/bin/bash
+
+brew install coreutils # for readlink and realpath
 
 export JDKDIR=$JAVA_HOME_11_X64
 
