@@ -27,7 +27,11 @@ BS_BRANCH=use-hdf5-memory-calls
 
 case $ARCH in
   aarch64)
-    GLOBAL_CFLAGS="-fPIC -O3 -march=armv8-a"
+    if [ $PLAT_OS == 'macos' ]; then
+      GLOBAL_CFLAGS="-fPIC -O3 -march=armv8-a"
+    else
+      GLOBAL_CFLAGS="-fPIC -O3"
+    fi
     ;;
   x86_64|*)
     GLOBAL_CFLAGS="-fPIC -O3 -msse4 -mavx2"
@@ -183,13 +187,13 @@ cp $H5/lib/libhdf5.settings $DEST
 
 cd $MS
 
-if [ -d HDF5-External-Filter-Plugins.git ]; then
+if [ ! -d HDF5-External-Filter-Plugins.git ]; then
     # checkout plugins
     git clone --depth 2 -b $FP_BRANCH git@github.com:DiamondLightSource/HDF5-External-Filter-Plugins.git HDF5-External-Filter-Plugins.git
 fi
 pushd HDF5-External-Filter-Plugins.git
 
-if [ -d bitshuffle.git ]; then
+if [ ! -d bitshuffle.git ]; then
     # checkout plugins
     git clone --depth 2 -b $BS_BRANCH git@github.com:DiamondLightSource/bitshuffle.git bitshuffle.git
 fi
