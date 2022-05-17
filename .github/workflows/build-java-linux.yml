@@ -1,0 +1,47 @@
+
+name: Build Linux and Windows Java OSGi bundles for use in Dawn
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  #push:
+  #  branches: [ master ]
+  #pull_request:
+  #  branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    strategy:
+      max-parallel: 2
+      matrix:
+        ARCH: ["x86_64", "aarch64"]
+        PLAT: ["2014"]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2qq
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: arm64
+
+      # Use docker image of Centos 6 or 7 with some devel packages as defined in PEP571 and PEP599
+      - name: Make Linux bindings
+        run: |
+          docker run --rm --env="PLAT=${{ matrix.PLAT }}" -env="ARCH=${{ matrix.ARCH }}" --env="PLAT_OS=linux" --volume $(pwd):/io ghcr.io/diamondlightsource/manylinux-dls-${{ matrix.PLAT }}_${{ matrix.ARCH }}:latest /bin/bash /io/releng/build_linux_bindings.sh
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: hdf5-build-linux
+          path: dist/
+

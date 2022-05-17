@@ -1,0 +1,46 @@
+name: Build macOS Java OSGi bundles for use in Dawn
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  #push:
+  #  branches: [ master ]
+  #pull_request:
+  #  branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'     
+        required: false
+        default: false
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: macos-11 # For Big Sur, to compile for Apple Silicon
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+        with:
+          limit-access-to-actor: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Make macOS bindings
+        env:
+          PLAT_OS: macos
+        run: |
+          ./releng/build_macos_bindings.sh
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: hdf5-build-macos
+          path: dist/
+
