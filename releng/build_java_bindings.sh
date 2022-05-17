@@ -189,13 +189,13 @@ cd $MS
 
 if [ ! -d HDF5-External-Filter-Plugins.git ]; then
     # checkout plugins
-    git clone --depth 2 -b $FP_BRANCH git@github.com:DiamondLightSource/HDF5-External-Filter-Plugins.git HDF5-External-Filter-Plugins.git
+    git clone --depth 2 -b $FP_BRANCH https://github.com/DiamondLightSource/HDF5-External-Filter-Plugins.git HDF5-External-Filter-Plugins.git
 fi
 pushd HDF5-External-Filter-Plugins.git
 
 if [ ! -d bitshuffle.git ]; then
     # checkout plugins
-    git clone --depth 2 -b $BS_BRANCH git@github.com:DiamondLightSource/bitshuffle.git bitshuffle.git
+    git clone --depth 2 -b $BS_BRANCH https://github.com/DiamondLightSource/bitshuffle.git bitshuffle.git
 fi
 
 make -d Makefile.dls TGT_OS=$PLAT_OS TGT_ARCH=$ARCH clean
