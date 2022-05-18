@@ -18,12 +18,22 @@ export JDKDIR=$JAVA_HOME_11_X64
 
 export PLAT_OS=macos
 export ARCH=x86_64
+export GLOBAL_CFLAGS="-fPIC -O3 -m64 -msse4 -mavx2" # or -mcpu=haswell, at least Intel Haswell or AMD Excavator (4th gen Bulldozer)
 
+# test for avx2
+set +e
+sysctl -n machdep.cpu.leaf7_features | grep -q AVX2
+if [ $? -eq 1 ]; then
+    export DONT_TEST_PLUGINS=yes
+fi
+set -e
 ./releng/build_java_bindings.sh
 X86_DEST=$DEST_DIR/*/$PLAT_OS/$ARCH
 
 
 export ARCH=aarch64
+export GLOBAL_CFLAGS="-fPIC -O3 -target arm64 -mcpu=cortex-a53" # at least ARM Cortex-A53 (e.g. RPi 3 Model B or Zero W 2)
+
 DONT_TEST_PLUGINS=yes ./releng/build_java_bindings.sh
 AA64_DEST=$(realpath -L $X86_DEST/../$ARCH)
 

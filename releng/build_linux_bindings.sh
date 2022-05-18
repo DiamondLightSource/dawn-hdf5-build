@@ -10,10 +10,28 @@ export CMAKE=cmake3
 
 cd /io
 
+case $ARCH in
+  aarch64)
+    export GLOBAL_CFLAGS="-fPIC -O3 -march=armv8-a" # at least ARM Cortex-A53 (e.g. RPi 3 Model B or Zero W 2)
+    ;;
+  x86_64|*)
+    export GLOBAL_CFLAGS="-fPIC -O3 -m64 -msse4 -mavx2" # at least Intel Haswell or AMD Excavator (4th gen Bulldozer)
+    ;;
+esac
+
+if [ $ARCH == 'x86_64' ]; then
+    # test for avx2 
+    set +e
+    cat /proc/cpuinfo | grep -q avx2
+    if [ $? -eq 1 ]; then
+        export DONT_TEST_PLUGINS=yes
+    fi
+    set -e
+fi
 ./releng/build_java_bindings.sh
 
 
-if [ $ARCH == 'x64_64' ]; then
+if [ $ARCH == 'x86_64' ]; then
     export PLAT_OS=win32
 
     # Set up cross-compiler environment

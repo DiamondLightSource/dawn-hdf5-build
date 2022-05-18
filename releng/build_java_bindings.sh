@@ -25,19 +25,6 @@ FP_BRANCH=dls_build
 # bitshuffle repo
 BS_BRANCH=use-hdf5-memory-calls
 
-case $ARCH in
-  aarch64)
-    if [ $PLAT_OS == 'macos' ]; then
-      GLOBAL_CFLAGS="-fPIC -O3 -march=armv8-a"
-    else
-      GLOBAL_CFLAGS="-fPIC -O3"
-    fi
-    ;;
-  x86_64|*)
-    GLOBAL_CFLAGS="-fPIC -O3 -msse4 -mavx2"
-    ;;
-esac
-
 case $PLAT_OS in
   linux)
     LIBEXT=so
@@ -198,8 +185,8 @@ if [ ! -d bitshuffle.git ]; then
     git clone --depth 2 -b $BS_BRANCH https://github.com/DiamondLightSource/bitshuffle.git bitshuffle.git
 fi
 
-make -f Makefile.dls TGT_OS=$PLAT_OS TGT_ARCH=$ARCH clean
-make -f Makefile.dls TGT_OS=$PLAT_OS TGT_ARCH=$ARCH
+make -f Makefile.dls TGT_OS=$PLAT_OS clean
+make -f Makefile.dls TGT_OS=$PLAT_OS
 if [ -z "$DONT_TEST_PLUGINS" ]; then
     pushd tests
     . check_plugins.sh
