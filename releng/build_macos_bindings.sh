@@ -3,6 +3,7 @@ set -e -x
 
 export BASE_DIR=$HOME
 export DEST_DIR="$PWD/dist"
+export CROSS_PREFIX='./' # used in liblzf
 
 brew install coreutils # for readlink and realpath
 brew install autoconf
@@ -32,7 +33,8 @@ X86_DEST=$DEST_DIR/*/$PLAT_OS/$ARCH
 
 
 export ARCH=aarch64
-export GLOBAL_CFLAGS="-fPIC -O3 -target arm64 -mcpu=cortex-a53" # at least ARM Cortex-A53 (e.g. RPi 3 Model B or Zero W 2)
+export GLOBAL_CFLAGS="-fPIC -O3 -mcpu=cortex-a53" # at least ARM Cortex-A53 (e.g. RPi 3 Model B or Zero W 2)
+export CC='clang -arch arm64'
 
 DONT_TEST_PLUGINS=yes ./releng/build_java_bindings.sh
 AA64_DEST=$(realpath -L $X86_DEST/../$ARCH)
