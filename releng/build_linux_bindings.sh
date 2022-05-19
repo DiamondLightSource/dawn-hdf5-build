@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-export BASE_DIR=''
+export BASE_DIR='/io/docker-base'
 export DEST_DIR='/io/dist'
 
 export CROSS_PREFIX='./' # used in liblzf

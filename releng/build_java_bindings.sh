@@ -43,9 +43,9 @@ JBIN=$(readlink -f `which java`)
 export JDKDIR=$(dirname $(dirname $(dirname $JBIN)))
 
 MS=$BASE_DIR/build/src
-export MY=$BASE_DIR/build/opt/$PLAT_OS
+export MY=$BASE_DIR/build/opt/$PLAT_OS/$ARCH
 MA=$MY/include,$MY/lib
-export H5=$BASE_DIR/build/hdf5/$PLAT_OS
+export H5=$BASE_DIR/build/hdf5/$PLAT_OS/$ARCH
 
 mkdir -p $MS
 mkdir -p $MY
@@ -150,8 +150,13 @@ fi
 
 mkdir -p hdf5-build-$PLAT_OS
 pushd hdf5-build-$PLAT_OS
-ln -s ../configure .
-CFLAGS=$GLOBAL_CFLAGS ${CROSS_PREFIX}configure --srcdir=.. --prefix=$H5 --enable-shared=yes --disable-hl --enable-threadsafe --with-zlib=$MA --with-pic=yes --enable-optimization=-O2 --enable-unsupported --enable-java
+#ln -s ../configure .
+#CFLAGS=$GLOBAL_CFLAGS ${CROSS_PREFIX}configure --srcdir=.. --prefix=$H5 --enable-shared=yes --disable-hl --enable-threadsafe --with-zlib=$MA --with-pic=yes --enable-#optimization=-O2 --enable-unsupported --enable-java
+
+$CMAKE -DHDF5_BUILD_JAVA=on -DHDF5_BUILD_TOOLS=on -DHDF5_ENABLE_THREADSAFE=om -DHDF5_ENABLE_Z_LIB_SUPPORT=on \
+ -DCMAKE_C_FLAGS="$GLOBAL_CFLAGS -I$MY/include" -DCMAKE_EXE_LINKER_FLAGS="-L$MY/lib" -DCMAKE_INSTALL_PREFIX=$H5 \
+ -DALLOW_UNSUPPORTED=on -DHDF5_BUILD_HL_LIB=off -DHDF5_BUILD_HL_TOOLS=off ..
+
 if [ -n "$TESTCOMP" ]; then
     # not necessary on GH actions as runner is not root
     if false; then
@@ -193,6 +198,7 @@ fi
 make -f Makefile.dls TGT_OS=$PLAT_OS clean
 make -f Makefile.dls TGT_OS=$PLAT_OS
 if [ -z "$DONT_TEST_PLUGINS" ]; then
+    export CFLAGS=$GLOBAL_CFLAGS
     pushd tests
     . check_plugins.sh
     popd

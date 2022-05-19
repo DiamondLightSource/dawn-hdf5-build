@@ -35,7 +35,7 @@ X86_DEST=$DEST_DIR/*/$PLAT_OS/$ARCH
 export ARCH=aarch64
 export GLOBAL_CFLAGS="-fPIC -O3 -mcpu=cortex-a53" # at least ARM Cortex-A53 (e.g. RPi 3 Model B or Zero W 2)
 export CC='clang -arch arm64'
-
+export CROSS_HOST='--build=x86_64-apple-darwin --host=aarch64-apple-darwin'
 DONT_TEST_PLUGINS=yes ./releng/build_java_bindings.sh
 AA64_DEST=$(realpath -L $X86_DEST/../$ARCH)
 
