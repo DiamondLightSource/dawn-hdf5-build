@@ -42,7 +42,7 @@ jobs:
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
-        if:  ${{ failure() }}
+        if: false # ${{ failure() }}
         with:
           limit-access-to-actor: true
           repo-token: ${{ secrets.GITHUB_TOKEN }}
