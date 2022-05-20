@@ -115,10 +115,9 @@ ZSTD_SRC=zstd-$ZSTD_VER
 download_check_extract_pushd $ZSTD_SRC ${ZSTD_SRC}.tar.gz $ZSTD_CHK "https://github.com/facebook/zstd/releases/download/v$ZSTD_VER"
 make clean
 if [ -n "$TESTCOMP" ]; then
-    PATH=$MY/bin:$PATH make CFLAGS="$GLOBAL_CFLAGS -I$MY/include" ZLIBLD="-L$MY/lib -lz" PREFIX=$MY test
+    PATH=$MY/bin:$PATH make CFLAGS="$GLOBAL_CFLAGS -I$MY/include -L$MY/lib" HAVE_LZMA=0 PREFIX=$MY test
 fi
-#PATH=$MY/bin:$PATH 
-make CFLAGS="$GLOBAL_CFLAGS -I$MY/include" ZLIBLD="-L$MY/lib -lz" PREFIX=$MY install
+make CFLAGS="$GLOBAL_CFLAGS -I$MY/include -L$MY/lib" HAVE_LZMA=0 PREFIX=$MY install
 rm -f $MY/lib/libzstd.${LIBEXT}*
 popd
 
