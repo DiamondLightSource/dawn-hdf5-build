@@ -21,6 +21,10 @@ case $ARCH in
     ;;
 esac
 
+JBIN=$(readlink -f `which java`)
+export JAVA_HOME=$(dirname $(dirname $(dirname $JBIN)))
+export JAVA_OS=$PLAT_OS
+
 if [ $ARCH == 'x86_64' ]; then
     # test for avx2 
     set +e
@@ -35,6 +39,7 @@ fi
 
 if [ $ARCH == 'x86_64' ]; then
     export PLAT_OS=win32
+    export JAVA_OS=$PLAT_OS
 
     # Set up cross-compiler environment
     eval `rpm --eval %{mingw64_env}`
@@ -42,7 +47,7 @@ if [ $ARCH == 'x86_64' ]; then
     export CMAKE='cmake3 -DCMAKE_TOOLCHAIN_FILE=/io/releng/mingw64-toolchain.cmake'
     export GLOBAL_CFLAGS="$CFLAGS $GLOBAL_CFLAGS"
     export CROSS_PREFIX='mingw64-'
-    export JDKDIR=/opt/jdk-11-win32
+    export JAVA_HOME=/opt/jdk-11-win32
 
     DONT_TEST_PLUGINS=yes ./releng/build_java_bindings.sh
 fi

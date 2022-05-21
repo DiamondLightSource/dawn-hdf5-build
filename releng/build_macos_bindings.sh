@@ -15,7 +15,8 @@ export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 # cmake3 already installed, for c-blosc
 export CMAKE=cmake
 
-export JDKDIR=$JAVA_HOME_11_X64
+export JAVA_HOME=$JAVA_HOME_11_X64
+export JAVA_OS=darwin
 
 export PLAT_OS=macos
 export ARCH=x86_64
