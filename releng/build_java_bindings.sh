@@ -124,6 +124,7 @@ popd
 
 
 download_check_extract_pushd c-blosc-$CB_VER v${CB_VER}.tar.gz $CB_CHK "https://github.com/Blosc/c-blosc/archive/refs/tags"
+rm -rf build
 mkdir -p build && cd build
 #CFLAGS="$GLOBAL_CFLAGS -DNDEBUG"
 if [ $ARCH == 'x64_64' ]; then
@@ -143,16 +144,19 @@ popd
 # use checked out version; no need to unpack
 pushd $CHECKOUT_DIR
 
-if [ ! -x "configure" ]; then
-    ./autogen.sh
-fi
+#if [ ! -x "configure" ]; then
+#    ./autogen.sh
+#fi
 
-mkdir -p hdf5-build-$PLAT_OS
-pushd hdf5-build-$PLAT_OS
+rm -rf hdf5-build
+mkdir -p hdf5-build
+pushd hdf5-build
 #ln -s ../configure .
 #CFLAGS=$GLOBAL_CFLAGS ${CROSS_PREFIX}configure --srcdir=.. --prefix=$H5 --enable-shared=yes --disable-hl --enable-threadsafe --with-zlib=$MA --with-pic=yes --enable-#optimization=-O2 --enable-unsupported --enable-java
 
-$CMAKE -DHDF5_BUILD_JAVA=on -DHDF5_BUILD_TOOLS=on -DHDF5_ENABLE_THREADSAFE=om -DHDF5_ENABLE_Z_LIB_SUPPORT=on \
+$CMAKE -DHDF5_BUILD_JAVA=ON -DHDF5_BUILD_TOOLS=ON -DHDF5_ENABLE_THREADSAFE=ON -DHDF5_ENABLE_Z_LIB_SUPPORT=ON \
+ -DZLIB_USE_EXTERNAL=OFF -DZLIB_ROOT=$MY \
+ -DZLIB_INCLUDE_DIR=$MY/include -DZLIB_LIBRARY=$MY/lib/libz.a \
  -DCMAKE_C_FLAGS="$GLOBAL_CFLAGS -I$MY/include" -DCMAKE_EXE_LINKER_FLAGS="-L$MY/lib" -DCMAKE_INSTALL_PREFIX=$H5 \
  -DALLOW_UNSUPPORTED=on -DHDF5_BUILD_HL_LIB=off -DHDF5_BUILD_HL_TOOLS=off ..
 
