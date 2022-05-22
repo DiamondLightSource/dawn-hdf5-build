@@ -37,7 +37,8 @@ fi
 ./releng/build_java_bindings.sh
 
 
-if [ $ARCH == 'x86_64' ]; then
+if false; then
+#if [ $ARCH == 'x86_64' ]; then
     export PLAT_OS=win32
     export JAVA_OS=$PLAT_OS
 

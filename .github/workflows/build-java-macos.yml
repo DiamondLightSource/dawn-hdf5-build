@@ -26,18 +26,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
-        with:
-          limit-access-to-actor: true
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Make macOS bindings
         env:
           PLAT_OS: macos
         run: |
           ./releng/build_macos_bindings.sh
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        # if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+        if: ${{ failure() }}
+        with:
+          limit-access-to-actor: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/upload-artifact@v3
         with:
