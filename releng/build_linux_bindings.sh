@@ -43,8 +43,8 @@ if [ $ARCH == 'x86_64' ]; then
 
     # Set up cross-compiler environment
     eval `rpm --eval %{mingw64_env}`
-
-    export CMAKE='cmake3 -DCMAKE_TOOLCHAIN_FILE=/io/releng/mingw64-toolchain.cmake'
+    ln -sf /usr/bin/cmake3 /usr/local/bin/cmake # overwrite symlink that points /opt/_internal/pipx/venvs/cmake/bin/cmake
+    export CMAKE='mingw64-cmake' # -DCMAKE_TOOLCHAIN_FILE=/io/releng/mingw64-toolchain.cmake'
     export GLOBAL_CFLAGS="$CFLAGS $GLOBAL_CFLAGS"
     export CROSS_PREFIX='mingw64-'
     export JAVA_HOME=/opt/jdk-11-win32
