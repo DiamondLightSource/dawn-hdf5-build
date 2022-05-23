@@ -199,10 +199,9 @@ if [ ! -d bitshuffle.git ]; then
     git clone --depth 2 -b $BS_BRANCH https://github.com/DiamondLightSource/bitshuffle.git bitshuffle.git
 fi
 
-make -f Makefile.dls TGT_OS=$PLAT_OS clean
-make -f Makefile.dls TGT_OS=$PLAT_OS
+make -f Makefile.dls clean
+make -f Makefile.dls
 if [ -z "$DONT_TEST_PLUGINS" ]; then
-    export CFLAGS=$GLOBAL_CFLAGS
     pushd tests
     . check_plugins.sh
     popd

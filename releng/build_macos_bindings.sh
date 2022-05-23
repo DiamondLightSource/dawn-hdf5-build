@@ -19,8 +19,7 @@ export JAVA_HOME=$JAVA_HOME_11_X64
 export JAVA_OS=darwin
 
 export PLAT_OS=macos
-export ARCH=x86_64
-export GLOBAL_CFLAGS="-fPIC -O3 -m64 -msse4 -mavx2" # or -mcpu=haswell, at least Intel Haswell or AMD Excavator (4th gen Bulldozer)
+
 
 # test for avx2
 set +e
@@ -29,6 +28,9 @@ if [ $? -eq 1 ]; then
     export DONT_TEST_PLUGINS=yes
 fi
 set -e
+
+export ARCH=x86_64
+export GLOBAL_CFLAGS="-fPIC -O3 -m64 -msse4 -mavx2" # or -mcpu=haswell, at least Intel Haswell or AMD Excavator (4th gen Bulldozer)
 ./releng/build_java_bindings.sh
 X86_DEST=$DEST_DIR/*/$PLAT_OS/$ARCH
 
@@ -42,7 +44,7 @@ AA64_DEST=$(realpath -L $X86_DEST/../$ARCH)
 
 # Create universal2 versions
 UNI2_DEST=$(realpath -L $X86_DEST/../universal2)
-mkdir -p $UNI_DEST
+mkdir -p $UNI2_DEST
 for l in $AA64_DEST/*.dylib; do
     dlib=$(basename $l)
     lipo -create $l $X86_DEST/$dlib -output $UNI2_DEST/$dlib
