@@ -100,10 +100,10 @@ popd
 download_check_extract_pushd $LZF_SRC ${LZF_SRC}.tar.gz $LZF_CHK "http://dist.schmorp.de/liblzf"
 CFLAGS=$GLOBAL_CFLAGS ${CROSS_PREFIX}configure --prefix=$MY $CROSS_HOST
 make clean
-if [ -n "$CC" ]; then
-    make CC="$CC -D_int64=long" install # redefine type for mingw64 cross compile
+if [ -n "$MINGW_CROSS_COMPILE" ]; then
+    make CC="gcc -D_int64=long" install # redefine type for mingw64 cross compile
 else
-    make install # redefine type for mingw64 cross compile
+    make install
 fi
 popd
 
