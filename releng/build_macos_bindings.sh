@@ -29,17 +29,20 @@ if [ $? -eq 1 ]; then
 fi
 set -e
 
+if false; then
 export ARCH=x86_64
 export GLOBAL_CFLAGS="-fPIC -O3 -m64 -msse4 -mavx2" # or -mcpu=haswell, at least Intel Haswell or AMD Excavator (4th gen Bulldozer)
 ./releng/build_java_bindings.sh
 X86_DEST=$DEST_DIR/*/$PLAT_OS/$ARCH
-
+fi
 
 export ARCH=aarch64
 export GLOBAL_CFLAGS="-fPIC -O3 -mcpu=cortex-a53" # at least ARM Cortex-A53 (e.g. RPi 3 Model B or Zero W 2)
 export CC='clang -arch arm64'
 export CROSS_HOST='--build=x86_64-apple-darwin --host=aarch64-apple-darwin'
 DONT_TEST_PLUGINS=yes ./releng/build_java_bindings.sh
+
+if false; then
 AA64_DEST=$(realpath -L $X86_DEST/../$ARCH)
 
 # Create universal2 versions
@@ -49,5 +52,5 @@ for l in $AA64_DEST/*.dylib; do
     dlib=$(basename $l)
     lipo -create $l $X86_DEST/$dlib -output $UNI2_DEST/$dlib
 done
-
+fi
 
