@@ -1,0 +1,13 @@
+diff --git a/java/src/hdf/hdf5lib/CMakeLists.txt b/java/src/hdf/hdf5lib/CMakeLists.txt
+index 089af1bea6..790d302f83 100644
+--- a/java/src/hdf/hdf5lib/CMakeLists.txt
++++ b/java/src/hdf/hdf5lib/CMakeLists.txt
+@@ -1,7 +1,7 @@
+ cmake_minimum_required (VERSION 3.12)
+ project (HDF5_JAVA_HDF_HDF5 Java)
+ 
+-set (CMAKE_VERBOSE_MAKEFILE 1)
++set (CMAKE_VERBOSE_MAKEFILE ON)
+ 
+ set_directory_properties(PROPERTIES INCLUDE_DIRECTORIES "${HDF5_JAVA_HDF_HDF5_SOURCE_DIR};${HDF5_JAVA_HDF_HDF5_BINARY_DIR};${HDF5_JAVA_LIB_DIR};${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${HDF5_JAVA_HDF5_LIB_CORENAME}.dir/hdf/hdf5lib")
+ 

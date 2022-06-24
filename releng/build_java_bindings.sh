@@ -110,11 +110,12 @@ popd
 
 ZSTD_SRC=zstd-$ZSTD_VER
 download_check_extract_pushd $ZSTD_SRC ${ZSTD_SRC}.tar.gz $ZSTD_CHK "https://github.com/facebook/zstd/releases/download/v$ZSTD_VER"
+patch -p1 < $CHECKOUT_DIR/releng/zstd-msys.patch
 make clean
 if [ -n "$TESTCOMP" ]; then
-    PATH=$MY/bin:$PATH make CFLAGS="$GLOBAL_CFLAGS -I$MY/include -L$MY/lib" HAVE_LZMA=0 PREFIX=$MY test
+    PATH=$MY/bin:$PATH make CFLAGS="$GLOBAL_CFLAGS -I$MY/include" LDFLAGS="-L$MY/lib" HAVE_LZMA=0 PREFIX=$MY test
 fi
-make CFLAGS="$GLOBAL_CFLAGS -I$MY/include -L$MY/lib" HAVE_LZMA=0 PREFIX=$MY install
+make CFLAGS="$GLOBAL_CFLAGS -I$MY/include" LDFLAGS="-L$MY/lib" HAVE_LZMA=0 PREFIX=$MY install
 rm -f $MY/lib/libzstd.${LIBEXT}*
 popd
 
@@ -124,11 +125,11 @@ download_check_extract_pushd c-blosc-$CB_VER v${CB_VER}.tar.gz $CB_CHK "https://
 rm -rf build
 mkdir -p build && cd build
 if [ $ARCH == 'x86_64' ]; then
-    $CMAKE -DCMAKE_INSTALL_PREFIX=$MY -DPREFER_EXTERNAL_LZ4=ON -DPREFER_EXTERNAL_ZLIB=ON -DPREFER_EXTERNAL_ZSTD=ON \
+    $CMAKE "$CMAKE_OPTS" -DCMAKE_INSTALL_PREFIX=$MY -DPREFER_EXTERNAL_LZ4=ON -DPREFER_EXTERNAL_ZLIB=ON -DPREFER_EXTERNAL_ZSTD=ON \
     -DLZ4_INCLUDE_DIR=$MY/include -DLZ4_LIBRARY=$MY/lib/liblz4.a -DZSTD_INCLUDE_DIR=$MY/include -DZSTD_LIBRARY=$MY/lib/libzstd.a \
     -DCMAKE_C_FLAGS="$GLOBAL_CFLAGS -I$MY/include" -DCMAKE_EXE_LINKER_FLAGS="-L$MY/lib"  -DZLIB_ROOT=$MY -DLZ4_ROOT=$MY -DZstd_ROOT=$MY ..
 else
-    $CMAKE -DCMAKE_INSTALL_PREFIX=$MY -DPREFER_EXTERNAL_LZ4=ON -DPREFER_EXTERNAL_ZLIB=ON -DPREFER_EXTERNAL_ZSTD=ON \
+    $CMAKE "$CMAKE_OPTS" -DCMAKE_INSTALL_PREFIX=$MY -DPREFER_EXTERNAL_LZ4=ON -DPREFER_EXTERNAL_ZLIB=ON -DPREFER_EXTERNAL_ZSTD=ON \
     -DLZ4_INCLUDE_DIR=$MY/include -DLZ4_LIBRARY=$MY/lib/liblz4.a -DZSTD_INCLUDE_DIR=$MY/include -DZSTD_LIBRARY=$MY/lib/libzstd.a \
     -DCMAKE_C_FLAGS="$GLOBAL_CFLAGS -I$MY/include" -DCMAKE_EXE_LINKER_FLAGS="-L$MY/lib"  -DZLIB_ROOT=$MY -DLZ4_ROOT=$MY -DZstd_ROOT=$MY \
     -DDEACTIVATE_SSE2=ON -DDEACTIVATE_AVX2=ON ..
@@ -155,7 +156,11 @@ pushd hdf5-build
 #ln -s ../configure .
 #CFLAGS=$GLOBAL_CFLAGS ${CROSS_PREFIX}configure --srcdir=.. --prefix=$H5 --enable-shared=yes --disable-hl --enable-threadsafe --with-zlib=$MA --with-pic=yes --enable-#optimization=-O2 --enable-unsupported --enable-java
 
-$CMAKE -DHDF5_BUILD_JAVA=ON -DHDF5_BUILD_TOOLS=ON -DHDF5_ENABLE_THREADSAFE=ON -DHDF5_ENABLE_Z_LIB_SUPPORT=ON \
+if [ -z "$TESTCOMP" ]; then
+  CMAKE_UTESTS=-DBUILD_TESTING=OFF
+fi
+
+$CMAKE "$CMAKE_OPTS" $CMAKE_UTESTS -DHDF5_BUILD_JAVA=ON -DHDF5_BUILD_TOOLS=ON -DHDF5_ENABLE_THREADSAFE=ON -DHDF5_ENABLE_Z_LIB_SUPPORT=ON \
  -DZLIB_USE_EXTERNAL=OFF -DZLIB_ROOT=$MY \
  -DZLIB_INCLUDE_DIR=$MY/include -DZLIB_LIBRARY=$MY/lib/libz.a \
  -DCMAKE_C_FLAGS="$GLOBAL_CFLAGS -I$MY/include -I$JAVA_HOME/include -I$JAVA_HOME/include/$JAVA_OS" -DCMAKE_EXE_LINKER_FLAGS="-L$MY/lib" -DCMAKE_INSTALL_PREFIX=$H5 \
@@ -171,18 +176,28 @@ if [ -n "$TESTCOMP" ]; then
     fi
     make check
 fi
-make install
+
+if [ $PLAT_OS == "win32" ]; then
+    # add quotes to classpath parameter
+    find java -name build.make -exec sed -i -b -r -e 's|classpath ([^ ]+)|classpath "\1"|' '{}' \;
+fi
+
+make VERBOSE=1 install
 popd
 
 
 JARFILE="$H5/lib/jarhdf5-*.jar"
 VERSION=`basename $JARFILE | sed -e 's/jarhdf5-\(.*\)\.jar/\1/g'`
 
-DEST=$DEST_DIR/$VERSION/$PLAT_OS/$ARCH
+export DEST=$DEST_DIR/$VERSION/$PLAT_OS/$ARCH
 mkdir -p $DEST
 
 cp $JARFILE $DEST
-cp -H $H5/lib/libhdf5.${LIBEXT} $DEST
+if [ $PLAT_OS == "win32" ]; then
+  cp -H $H5/bin/libhdf5.${LIBEXT} $DEST
+else
+  cp -H $H5/lib/libhdf5.${LIBEXT} $DEST
+fi
 cp $H5/lib/libhdf5_java.${LIBEXT} $DEST
 cp $H5/lib/libhdf5.settings $DEST
 

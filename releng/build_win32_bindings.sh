@@ -1,17 +1,27 @@
 #!/bin/bash
 set -e -x
 
-export BASE_DIR=$HOME
-export DEST_DIR="$PWD/dist"
-export CROSS_PREFIX='./' # used in liblzf
+BASE_DIR=$HOME
+DEST_DIR="$PWD/dist"
+CROSS_PREFIX='./' # used in liblzf
+export BASE_DIR DEST_DIR CROSS_PREFIX
 
-#export CMAKE=cmake3
 
+uname
+which cmake
+cmake --version
 
-export JAVA_HOME=$JAVA_HOME_11_X64
-export JAVA_OS=$PLAT_OS
+CMAKE=cmake
+CMAKE_OPTS="-G MSYS Makefiles"
+#CMAKE_OPTS="-G MinGW Makefiles"
+export CMAKE CMAKE_OPTS
 
-export ARCH=x86_64
+JAVA_HOME=`echo $JAVA_HOME_11_X64 | sed -e 's,C:,/c,' | tr \\\\ /` # make a Unix path
+JAVA_OS=$PLAT_OS
+ARCH=x86_64
+export JAVA_HOME JAVA_OS ARCH
+
+pacman -S --noconfirm git
 
 case $ARCH in
   aarch64)
@@ -32,5 +42,6 @@ esac
 
 export MINGW_CROSS_COMPILE='yes' # trigger lz4 _int64 handling
 
-DONT_TEST_PLUGINS=yes ./releng/build_java_bindings.sh
+#DONT_TEST_PLUGINS=yes
+./releng/build_java_bindings.sh
 
