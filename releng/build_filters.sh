@@ -9,13 +9,13 @@ pushd $MS
 
 if [ ! -d HDF5-External-Filter-Plugins.git ]; then
     # checkout plugins
-    git clone --depth 2 -b $FP_BRANCH https://github.com/DiamondLightSource/HDF5-External-Filter-Plugins.git HDF5-External-Filter-Plugins.git
+    git clone --single-branch --depth 2 -b $FP_BRANCH https://github.com/DiamondLightSource/HDF5-External-Filter-Plugins.git HDF5-External-Filter-Plugins.git
 fi
 pushd HDF5-External-Filter-Plugins.git
 
 if [ ! -d bitshuffle.git ]; then
     # checkout plugins
-    git clone --depth 2 -b $BS_BRANCH https://github.com/DiamondLightSource/bitshuffle.git bitshuffle.git
+    git clone --single-branch --depth 2 -b $BS_BRANCH https://github.com/DiamondLightSource/bitshuffle.git bitshuffle.git
 fi
 
 make -f Makefile.dls clean
@@ -27,6 +27,8 @@ if [ -z "$DONT_TEST_PLUGINS" ]; then
 fi
 
 cp lib*.${LIBEXT} $DEST
+
+popd
 
 popd
 

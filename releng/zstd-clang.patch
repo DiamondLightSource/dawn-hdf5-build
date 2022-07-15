@@ -1,0 +1,11 @@
+--- zstd-1.5.2/lib/Makefile	2022-06-24 11:49:11.928594562 +0100
++++ zstd-1.5.2-new/lib/Makefile	2022-07-13 10:27:32.913172223 +0100
+@@ -73,7 +73,7 @@
+   SHARED_EXT = dylib
+   SHARED_EXT_MAJOR = $(LIBVER_MAJOR).$(SHARED_EXT)
+   SHARED_EXT_VER = $(LIBVER).$(SHARED_EXT)
+-  SONAME_FLAGS = -install_name $(LIBDIR)/libzstd.$(SHARED_EXT_MAJOR) -compatibility_version $(LIBVER_MAJOR) -current_version $(LIBVER)
++  SONAME_FLAGS = -dynamiclib -install_name $(LIBDIR)/libzstd.$(SHARED_EXT_MAJOR) -compatibility_version $(LIBVER_MAJOR) -current_version $(LIBVER)
+ else
+   ifeq ($(UNAME), AIX)
+     SONAME_FLAGS =

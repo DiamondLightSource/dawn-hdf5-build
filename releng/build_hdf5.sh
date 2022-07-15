@@ -40,6 +40,7 @@ fi
 make VERBOSE=1 install
 popd
 
+popd
 
 JARFILE="$H5/lib/jarhdf5-*.jar"
 VERSION=`basename $JARFILE | sed -e 's/jarhdf5-\(.*\)\.jar/\1/g'`

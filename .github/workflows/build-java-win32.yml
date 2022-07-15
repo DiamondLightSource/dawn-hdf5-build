@@ -29,6 +29,12 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
+      - name: Make Windows bindings
+        env:
+          PLAT_OS: win32
+        run: |
+          C:\msys64\usr\bin\bash.exe -lc 'export PATH=/c/msys64/mingw64/bin:/c/msys64/usr/bin:"$PATH"; cd "$GITHUB_WORKSPACE" && ./releng/build_win32_bindings.sh'
+
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
@@ -36,12 +42,6 @@ jobs:
         with:
           limit-access-to-actor: true
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Make Windows bindings
-        env:
-          PLAT_OS: win32
-        run: |
-          C:\msys64\usr\bin\bash.exe -lc 'export PATH=/c/msys64/mingw64/bin:/c/msys64/usr/bin:"$PATH"; cd "$GITHUB_WORKSPACE" && ./releng/build_win32_bindings.sh'
 
       - uses: actions/upload-artifact@v3
         with:

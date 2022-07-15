@@ -77,7 +77,6 @@ make install
 popd
 
 
-
 download_check_extract_pushd lz4-$LZ4_VER v${LZ4_VER}.tar.gz $LZ4_CHK "https://github.com/lz4/lz4/archive"
 make clean
 if [ -n "$TESTCOMP" ]; then
@@ -104,6 +103,9 @@ download_check_extract_pushd $ZSTD_SRC ${ZSTD_SRC}.tar.gz $ZSTD_CHK "https://git
 if [ $PLAT_OS == "win32" ]; then
     patch -p1 < $CHECKOUT_DIR/releng/zstd-msys.patch
 fi
+if [ $PLAT_OS == "macos" -a $ARCH == "x86_64" ]; then
+    patch -p1 < $CHECKOUT_DIR/releng/zstd-clang.patch
+fi
 make clean
 if [ -n "$TESTCOMP" ]; then
     PATH=$MY/bin:$PATH make CFLAGS="$GLOBAL_CFLAGS -I$MY/include" LDFLAGS="-L$MY/lib" HAVE_LZMA=0 PREFIX=$MY test
@@ -113,10 +115,9 @@ rm -f $MY/lib/libzstd.${LIBEXT}*
 popd
 
 
-
 download_check_extract_pushd c-blosc-$CB_VER v${CB_VER}.tar.gz $CB_CHK "https://github.com/Blosc/c-blosc/archive/refs/tags"
 rm -rf build
-mkdir -p build && cd build
+mkdir -p build && pushd build
 if [ $ARCH == "x86_64" ]; then
     $CMAKE "$CMAKE_OPTS" -DCMAKE_INSTALL_PREFIX=$MY -DPREFER_EXTERNAL_LZ4=ON -DPREFER_EXTERNAL_ZLIB=ON -DPREFER_EXTERNAL_ZSTD=ON \
     -DLZ4_INCLUDE_DIR=$MY/include -DLZ4_LIBRARY=$MY/lib/liblz4.a -DZSTD_INCLUDE_DIR=$MY/include -DZSTD_LIBRARY=$MY/lib/libzstd.a \
@@ -133,6 +134,7 @@ if [ -n "$TESTCOMP" ]; then
 fi
 make install
 rm -f $MY/lib/libblosc.${LIBEXT}*
+popd
 popd
 
 popd
