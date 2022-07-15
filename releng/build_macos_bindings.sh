@@ -3,7 +3,6 @@ set -e -x
 
 export BASE_DIR=$HOME
 export DEST_DIR="$PWD/dist"
-export CROSS_PREFIX='./' # used in liblzf
 
 brew install coreutils # for readlink and realpath
 brew install autoconf

@@ -3,8 +3,7 @@ set -e -x
 
 BASE_DIR=$HOME
 DEST_DIR="$PWD/dist"
-CROSS_PREFIX='./' # used in liblzf
-export BASE_DIR DEST_DIR CROSS_PREFIX
+export BASE_DIR DEST_DIR
 
 
 uname
@@ -32,15 +31,6 @@ case $ARCH in
     ;;
 esac
 
-
-# Set up cross-compiler environment
-#eval `rpm --eval %{mingw64_env}`
-#ln -sf /usr/bin/cmake3 /usr/local/bin/cmake # overwrite symlink that points /opt/_internal/pipx/venvs/cmake/bin/cmake
-#export CMAKE='mingw64-cmake' # -DCMAKE_TOOLCHAIN_FILE=/io/releng/mingw64-toolchain.cmake'
-#export GLOBAL_CFLAGS="$CFLAGS $GLOBAL_CFLAGS"
-#export CROSS_PREFIX='mingw64-'
-
-export MINGW_CROSS_COMPILE='yes' # trigger lz4 _int64 handling
 
 #DONT_TEST_PLUGINS=yes
 ./releng/build_java_bindings.sh
