@@ -1,0 +1,24 @@
+diff -ur liblzf-3.6/lzf_c.c liblzf-3.6-new/lzf_c.c
+--- liblzf-3.6/lzf_c.c	2010-06-01 10:11:20.000000000 +0100
++++ liblzf-3.6-new/lzf_c.c	2022-07-18 15:42:36.274830689 +0100
+@@ -35,6 +35,9 @@
+  */
+ 
+ #include "lzfP.h"
++#ifdef _WIN64
++#include <stdint.h>
++#endif
+ 
+ #define HSIZE (1 << (HLOG))
+ 
+@@ -119,7 +122,9 @@
+    * and fails to support both assumptions is windows 64 bit, we make a
+    * special workaround for it.
+    */
+-#if defined (WIN32) && defined (_M_X64)
++#if defined (_WIN64)
++  uint64_t off;
++#elif defined (WIN32) && defined (_M_X64)
+   unsigned _int64 off; /* workaround for missing POSIX compliance */
+ #else
+   unsigned long off;

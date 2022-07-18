@@ -88,13 +88,12 @@ popd
 
 
 download_check_extract_pushd $LZF_SRC ${LZF_SRC}.tar.gz $LZF_CHK "http://dist.schmorp.de/liblzf"
+if [ $PLAT_OS == "win32" ]; then
+    patch -p1 < $CHECKOUT_DIR/releng/liblzf-mingw64.patch
+fi
 CFLAGS=$GLOBAL_CFLAGS ./configure --prefix=$MY $CROSS_HOST
 make clean
-if [ $PLAT_OS == "win32" ]; then
-    make CC="gcc -D_int64=long" install # redefine type for mingw64 cross compile
-else
-    make install
-fi
+make install
 popd
 
 
