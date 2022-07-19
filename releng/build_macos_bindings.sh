@@ -1,15 +1,23 @@
 #!/bin/bash
 set -e -x
 
-export BASE_DIR=$HOME
-export DEST_DIR="$PWD/dist"
+if [ -z "$BASE_DIR" ]; then
+    export BASE_DIR=$HOME
+fi
+if [ -z "$DEST_DIR" ]; then
+    export DEST_DIR="$PWD/dist"
+fi
+
+if [ -z "$CROSS_BUILD" ]; then
+    CROSS_BUILD=n
+fi
 
 brew install coreutils # for readlink and realpath
 brew install openjdk@11
 
 export MACOSX_DEPLOYMENT_TARGET=10.9 # minimum macOS version Mavericks for XCode 12.1+
 
-export JAVA_HOME=/usr/local/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home
+export JAVA_HOME=$HOMEBREW_PREFIX/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home
 export CPPFLAGS="-I$JAVA_HOME/include"
 
 export PATH="$JAVA_HOME/bin:/usr/local/opt/coreutils/libexec/gnubin:$PATH"
@@ -21,84 +29,92 @@ export JAVA_OS=darwin
 
 export PLAT_OS=macos
 
-BUILD_ARCH=$(uname -m)
-if [ $BUILD_ARCH == "x86_64" ]; then
-# test for avx2
-set +e
-sysctl -n machdep.cpu.leaf7_features | grep -q AVX2
-if [ $? -eq 1 ]; then
-    export DONT_TEST_PLUGINS=yes
-fi
-set -e
-fi
-
-export ARCH=x86_64
-export GLOBAL_CFLAGS="-fPIC -O3 -m64 -msse4 -mavx2" # or -mcpu=haswell, at least Intel Haswell or AMD Excavator (4th gen Bulldozer)
-. releng/build_codecs.sh
-X86_MY=$MY
-
-export ARCH=aarch64
-export GLOBAL_CFLAGS="-fPIC -O3 -mcpu=cortex-a53" # at least ARM Cortex-A53 (e.g. RPi 3 Model B or Zero W 2)
-export CC='clang -arch arm64'
-export CROSS_HOST='--build=x86_64-apple-darwin --host=aarch64-apple-darwin'
-
-. releng/build_codecs.sh
-AA64_MY=$MY
-export -n CC
-
-# Create universal2 versions of static libraries
-export ARCH=universal2
-UNI2_MY=$(realpath -L $X86_MY/../$ARCH)
-mkdir -p $UNI2_MY/lib
-for l in $AA64_MY/lib/*.a; do
-    dlib=$(basename $l)
-    lipo -create $l $X86_MY/lib/$dlib -output $UNI2_MY/lib/$dlib
-done
-ln -s $X86_MY/include $UNI2_MY/
-
-export MY=$UNI2_MY
-export CMAKE_OSX_ARCHITECTURES="x86_64;arm64"
-. releng/build_hdf5.sh
-UNI2_DEST=$DEST
-
-# Create thin versions of hdf5 dynamic library
-mkdir -p $UNI2_DEST/../aarch64 $UNI2_DEST/../x86_64
-AA64_DEST=$(realpath -L $UNI2_DEST/../aarch64)
-X86_DEST=$(realpath -L $UNI2_DEST/../x86_64)
-
-for l in $UNI2_DEST/*.dylib; do
-    dlib=$(basename $l)
-    lipo -extract arm64 $l -output $AA64_DEST/$dlib
-    lipo -extract x86_64 $l -output $X86_DEST/$dlib
-done
-for i in $UNI2_MY/include/[Hh]*.h; do
-    ln -s $i $AA64_MY/include
-done
-
-export ARCH=x86_64
-export GLOBAL_CFLAGS="-fPIC -O3 -m64 -msse4 -mavx2" # or -mcpu=haswell, at least Intel Haswell or AMD Excavator (4th gen Bulldozer)
-export MY=$X86_MY
-export DEST=$X86_DEST
-. releng/build_filters.sh
-
-if [ $BUILD_ARCH == "arm64" ]; then
-    export DONT_TEST_PLUGINS=yes
+B_ARCH=$(uname -m) # build architecture
+if [ $B_ARCH == "x86_64" ]; then
+    # test for avx2
+    (sysctl -n machdep.cpu.leaf7_features | grep -q AVX2) || export DONT_TEST_PLUGINS=yes
+    X_ARCH=arm64 # cross architecture
 else
-    export -n DONT_TEST_PLUGINS
+    X_ARCH=x86_64
 fi
 
-export ARCH=aarch64
-export GLOBAL_CFLAGS="-fPIC -O3 -mcpu=cortex-a53" # at least ARM Cortex-A53 (e.g. RPi 3 Model B or Zero W 2)
-export MY=$AA64_MY
-export DEST=$AA64_DEST
-export CC='clang -arch arm64'
+set_arch_envs() {
+    l_arch=$1
+    export ARCH=$l_arch
+    if [ $l_arch == "x86_64" ]; then
+        export GLOBAL_CFLAGS="-fPIC -O3 -m64 -msse4 -mavx2" # or -mcpu=haswell, at least Intel Haswell or AMD Excavator (4th gen Bulldozer)
+    elif [ $l_arch == "arm64" ]; then
+        export GLOBAL_CFLAGS="-fPIC -O3 -mcpu=cortex-a53" # at least ARM Cortex-A53 (e.g. RPi 3 Model B or Zero W 2)
+    else
+        export GLOBAL_CFLAGS="-fPIC -O3"
+    fi
+}
+
+set_arch_envs($B_ARCH)
+. releng/build_codecs.sh
+B_MY=$MY
+
+if [ $CROSS_BUILD == "y" ]; then
+    set_arch_envs($X_ARCH)
+    export CC="clang -arch $ARCH"
+    export CMAKE_OSX_ARCHITECTURES=$ARCH
+    #export CROSS_HOST='--build=x86_64-apple-darwin --host=aarch64-apple-darwin'
+    . releng/build_codecs.sh
+    X_MY=$MY
+    export -n CC
+
+    # Create universal2 versions of static libraries
+    set_arch_envs("universal2")
+    U_MY=$(realpath -L $B_MY/../$ARCH)
+    mkdir -p $U_MY/lib
+    for l in $X_MY/lib/*.a; do
+        dlib=$(basename $l)
+        lipo -create $l $B_MY/lib/$dlib -output $U_MY/lib/$dlib
+    done
+    ln -s $B_MY/include $UNI2_MY/
+
+    export MY=$U_MY
+    export CMAKE_OSX_ARCHITECTURES="$B_ARCH;$X_ARCH"
+    . releng/build_hdf5.sh
+    U_DEST=$DEST
+
+    # Create thin versions of hdf5 dynamic library
+    mkdir -p $U_DEST/../$B_ARCH $U_DEST/../$X_ARCH
+    B_DEST=$(realpath -L $U_DEST/../$B_ARCH)
+    X_DEST=$(realpath -L $U_DEST/../$X_ARCH)
+
+    for l in $U_DEST/*.dylib; do
+        dlib=$(basename $l)
+        lipo -extract $B_ARCH $l -output $B_DEST/$dlib
+        lipo -extract $X_ARCH $l -output $X_DEST/$dlib
+    done
+    for i in $U_MY/include/[Hh]*.h; do
+        ln -s $i $B_MY/include
+    done
+else
+    . releng/build_hdf5.sh
+fi
+
+set_arch_envs($B_ARCH)
+export MY=$B_MY
+export DEST=$B_DEST
 . releng/build_filters.sh
 
-# Create universal2 versions of dynamic libraries
-for l in $AA64_DEST/*.dylib; do
-    dlib=$(basename $l)
-    if [ ! -f $UNI2_DEST/$dlib ]; then
-        lipo -create $l $X86_DEST/$dlib -output $UNI2_DEST/$dlib
-    fi
-done
+if [ $CROSS_BUILD == "y" ]; then
+    export DONT_TEST_PLUGINS=yes
+
+    set_arch_envs($X_ARCH)
+    export MY=$X_MY
+    export DEST=$X_DEST
+    export CC="clang -arch $ARCH"
+    . releng/build_filters.sh
+
+    # Create universal2 versions of dynamic libraries
+    for l in $B_DEST/*.dylib; do
+        dlib=$(basename $l)
+        if [ ! -f $U_DEST/$dlib ]; then
+            lipo -create $l $X_DEST/$dlib -output $U_DEST/$dlib
+        fi
+    done
+fi
 

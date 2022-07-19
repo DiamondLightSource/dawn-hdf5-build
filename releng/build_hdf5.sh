@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# expects BASE_DIR, PLAT_OS, ARCH, GLOBAL_CFLAGS, CHECKOUT_DIR, MY, TESTCOMP, DEST_DIR prefix for artifacts, LIBEXT
+# exports H5 (prefix for installation), DEST where specific artifacts are stored
+
 export H5=$BASE_DIR/build/hdf5/$PLAT_OS/$ARCH
 mkdir -p $H5
 

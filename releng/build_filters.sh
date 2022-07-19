@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# expects MY, H5, MS, PLAT_OS, ARCH, GLOBAL_CFLAGS, DONT_TEST_PLUGINS, LIBEXT, DEST
+
 # external filter plugin repo
 FP_BRANCH=dls_build
 # bitshuffle repo

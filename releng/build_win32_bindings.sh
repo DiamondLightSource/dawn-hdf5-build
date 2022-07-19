@@ -6,13 +6,8 @@ DEST_DIR="$PWD/dist"
 export BASE_DIR DEST_DIR
 
 
-uname
-which cmake
-cmake --version
-
 CMAKE=cmake
 CMAKE_OPTS="-G MSYS Makefiles"
-#CMAKE_OPTS="-G MinGW Makefiles"
 export CMAKE CMAKE_OPTS
 
 JAVA_HOME=`echo $JAVA_HOME_11_X64 | sed -e 's,C:,/c,' | tr \\\\ /` # make a Unix path
@@ -31,7 +26,5 @@ case $ARCH in
     ;;
 esac
 
-
-#DONT_TEST_PLUGINS=yes
 ./releng/build_java_bindings.sh
 

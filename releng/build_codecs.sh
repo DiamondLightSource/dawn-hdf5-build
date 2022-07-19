@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# docker run -it -env="ARCH=x86_64" --env="PLAT_OS=linux" -v $(pwd):/io:Z ghcr.io/diamondlightsource/manylinux-dls-2014_x86_64:latest /bin/bash /releng/build_linux_bindings.sh
+# expects BASE_DIR, PLAT_OS, ARCH, GLOBAL_CFLAGS, TESTCOMP
+# exports LIBEXT, MY (prefix for installation), MS (dir for codecs source), CHECKOUT_DIR assumes this is $PWD
 
 # need to define where other source is checked out and built (BASE_DIR)
 # and where artifacts should be placed (DEST_DIR)
