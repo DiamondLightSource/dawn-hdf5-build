@@ -62,7 +62,7 @@ if [ $CROSS_BUILD == "y" ]; then
     set_arch_envs $X_ARCH
     export CC="clang -arch $ARCH"
     export CMAKE_OSX_ARCHITECTURES=$ARCH
-    #export CROSS_HOST='--build=x86_64-apple-darwin --host=aarch64-apple-darwin'
+    export CROSS_HOST="--build=$B_ARCH-apple-darwin --host=$X_ARCH-apple-darwin"
     . releng/build_codecs.sh
     X_MY=$MY
     export -n CC
