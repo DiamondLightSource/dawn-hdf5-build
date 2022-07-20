@@ -38,8 +38,10 @@ MS=$BASE_DIR/build/src
 MY=$BASE_DIR/build/opt/$PLAT_OS/$ARCH
 export MY
 
-mkdir -p $MS
-mkdir -p $MY
+mkdir -p "$MS"
+mkdir -p "$MY"
+
+rm -rf "$MY/bin" "$MY/lib"
 
 download_check_extract_pushd() {
     DL_SRC=$1
@@ -62,6 +64,14 @@ download_check_extract_pushd() {
     pushd $DL_SRC
 }
 
+patch_if_needed() {
+    pf=$1
+    tf=$(basename $pf)
+    if [ ! -f "$tf.done" ]; then
+        patch -p1 < $pf
+        touch "$tf.done"
+    fi
+}
 
 # fetch, build and install compression libraries
 pushd $MS
@@ -90,7 +100,7 @@ popd
 
 download_check_extract_pushd $LZF_SRC ${LZF_SRC}.tar.gz $LZF_CHK "http://dist.schmorp.de/liblzf"
 if [ $PLAT_OS == "win32" ]; then
-    patch -p1 < $CHECKOUT_DIR/releng/liblzf-mingw64.patch
+    patch_if_needed $CHECKOUT_DIR/releng/liblzf-mingw64.patch
 fi
 CFLAGS=$GLOBAL_CFLAGS ./configure --prefix=$MY $CROSS_HOST
 make clean
@@ -101,10 +111,10 @@ popd
 ZSTD_SRC=zstd-$ZSTD_VER
 download_check_extract_pushd $ZSTD_SRC ${ZSTD_SRC}.tar.gz $ZSTD_CHK "https://github.com/facebook/zstd/releases/download/v$ZSTD_VER"
 if [ $PLAT_OS == "win32" ]; then
-    patch -p1 < $CHECKOUT_DIR/releng/zstd-msys.patch
+    patch_if_needed $CHECKOUT_DIR/releng/zstd-msys.patch
 fi
 if [ $PLAT_OS == "macos" -a $ARCH == "x86_64" ]; then
-    patch -p1 < $CHECKOUT_DIR/releng/zstd-clang.patch
+    patch_if_needed $CHECKOUT_DIR/releng/zstd-clang.patch
 fi
 make clean
 if [ -n "$TESTCOMP" ]; then

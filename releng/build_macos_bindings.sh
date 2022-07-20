@@ -17,6 +17,10 @@ brew install openjdk@11
 
 export MACOSX_DEPLOYMENT_TARGET=10.9 # minimum macOS version Mavericks for XCode 12.1+
 
+if [ -z "$HOMEBREW_PREFIX" ]; then
+    HOMEBREW_PREFIX=$(realpath -L $(dirname $(which brew))/..)
+fi
+
 export JAVA_HOME=$HOMEBREW_PREFIX/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home
 export CPPFLAGS="-I$JAVA_HOME/include"
 
@@ -50,28 +54,29 @@ set_arch_envs() {
     fi
 }
 
-set_arch_envs($B_ARCH)
+set_arch_envs $B_ARCH
 . releng/build_codecs.sh
 B_MY=$MY
 
 if [ $CROSS_BUILD == "y" ]; then
-    set_arch_envs($X_ARCH)
+    set_arch_envs $X_ARCH
     export CC="clang -arch $ARCH"
     export CMAKE_OSX_ARCHITECTURES=$ARCH
     #export CROSS_HOST='--build=x86_64-apple-darwin --host=aarch64-apple-darwin'
     . releng/build_codecs.sh
     X_MY=$MY
     export -n CC
+    unset CC
 
     # Create universal2 versions of static libraries
-    set_arch_envs("universal2")
+    set_arch_envs "universal2"
     U_MY=$(realpath -L $B_MY/../$ARCH)
     mkdir -p $U_MY/lib
     for l in $X_MY/lib/*.a; do
         dlib=$(basename $l)
         lipo -create $l $B_MY/lib/$dlib -output $U_MY/lib/$dlib
     done
-    ln -s $B_MY/include $UNI2_MY/
+    ln -s $B_MY/include $U_MY/
 
     export MY=$U_MY
     export CMAKE_OSX_ARCHITECTURES="$B_ARCH;$X_ARCH"
@@ -93,9 +98,10 @@ if [ $CROSS_BUILD == "y" ]; then
     done
 else
     . releng/build_hdf5.sh
+    B_DEST=$DEST
 fi
 
-set_arch_envs($B_ARCH)
+set_arch_envs $B_ARCH
 export MY=$B_MY
 export DEST=$B_DEST
 . releng/build_filters.sh
@@ -103,7 +109,7 @@ export DEST=$B_DEST
 if [ $CROSS_BUILD == "y" ]; then
     export DONT_TEST_PLUGINS=yes
 
-    set_arch_envs($X_ARCH)
+    set_arch_envs $X_ARCH
     export MY=$X_MY
     export DEST=$X_DEST
     export CC="clang -arch $ARCH"

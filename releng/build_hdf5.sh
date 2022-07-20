@@ -52,8 +52,11 @@ export DEST=$DEST_DIR/$VERSION/$PLAT_OS/$ARCH
 mkdir -p $DEST
 
 cp $JARFILE $DEST
+shopt -s extglob # to use extended glob (needs to be outside if statement)
 if [ $PLAT_OS == "win32" ]; then
   cp -H $H5/bin/libhdf5.${LIBEXT} $DEST
+elif [ $PLAT_OS == "macos" ]; then
+  cp -H $H5/lib/libhdf5.+([0-9]).${LIBEXT} $DEST
 else
   cp -H $H5/lib/libhdf5.${LIBEXT} $DEST
 fi
