@@ -11,6 +11,11 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
+      cross_build:
+        description: 'Cross compile for universal2 (n/y)'
+        required: false
+        default: n
+        type: string
       debug_enabled:
         description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
         required: false
@@ -29,6 +34,7 @@ jobs:
       - name: Make macOS bindings
         env:
           PLAT_OS: macos
+          CROSS_BUILD: ${{ github.event.inputs.cross_build }}
         run: |
           ./releng/build_macos_bindings.sh
 
