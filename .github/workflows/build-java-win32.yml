@@ -30,8 +30,6 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Make Windows bindings
-        env:
-          PLAT_OS: win32
         run: |
           C:\msys64\usr\bin\bash.exe -lc 'export PATH=/c/msys64/mingw64/bin:/c/msys64/usr/bin:"$PATH"; cd "$GITHUB_WORKSPACE" && ./releng/build_win32_bindings.sh'
 

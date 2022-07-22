@@ -12,12 +12,14 @@ CMAKE=cmake
 CMAKE_OPTS="-G MSYS Makefiles"
 export CMAKE CMAKE_OPTS
 
+export PLAT_OS=win32
+
 JAVA_HOME=`echo $JAVA_HOME_11_X64 | sed -e 's,C:,/c,' | tr \\\\ /` # make a Unix path
 JAVA_OS=$PLAT_OS
 ARCH=x86_64
 export JAVA_HOME JAVA_OS ARCH
 
-pacman -S --noconfirm git
+pacman -S --noconfirm --needed git
 
 case $ARCH in
   aarch64)
