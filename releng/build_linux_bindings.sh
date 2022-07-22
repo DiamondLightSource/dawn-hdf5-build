@@ -3,14 +3,22 @@ set -e -x
 
 # docker run -it -env="ARCH=x86_64" --env="PLAT_OS=linux" -v $(pwd):/io:Z ghcr.io/diamondlightsource/manylinux-dls-2014_x86_64:latest /bin/bash /releng/build_linux_bindings.sh
 
-export BASE_DIR='/io/docker-base'
-export DEST_DIR='/io/dist'
+if [ -z "$START_DIR" ]; then
+    export START_DIR="/io"
+fi
+
+if [ -z "$BASE_DIR" ]; then
+    export BASE_DIR="$START_DIR/docker-base"
+fi
+if [ -z "$DEST_DIR" ]; then
+    export DEST_DIR="$START_DIR/dist"
+fi
 
 export CMAKE=cmake3
 
 # yum install -y python34 # for testing LZ4; python3-3.6 brought in by cmake
 
-cd /io
+cd $START_DIR
 
 case $ARCH in
   aarch64)

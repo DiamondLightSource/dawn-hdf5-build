@@ -1,10 +1,12 @@
 #!/bin/bash
 set -e -x
 
-BASE_DIR=$HOME
-DEST_DIR="$PWD/dist"
-export BASE_DIR DEST_DIR
-
+if [ -z "$BASE_DIR" ]; then
+    export BASE_DIR=$HOME
+fi
+if [ -z "$DEST_DIR" ]; then
+    export DEST_DIR="$PWD/dist"
+fi
 
 CMAKE=cmake
 CMAKE_OPTS="-G MSYS Makefiles"
