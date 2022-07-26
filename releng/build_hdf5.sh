@@ -15,14 +15,18 @@ mkdir -p hdf5-build
 pushd hdf5-build
 
 if [ -z "$TESTCOMP" ]; then
-  CMAKE_UTESTS=-DBUILD_TESTING=OFF
+    CMAKE_UTESTS=-DBUILD_TESTING=OFF
+fi
+
+if [ $PLAT_OS == "win32" ]; then
+    CMAKE_WIN32_OPTS=-DHDF5_MSVC_NAMING_CONVENTION=ON
 fi
 
 $CMAKE "$CMAKE_OPTS" $CMAKE_UTESTS -DHDF5_BUILD_JAVA=ON -DHDF5_BUILD_TOOLS=ON -DHDF5_ENABLE_THREADSAFE=ON -DHDF5_ENABLE_Z_LIB_SUPPORT=ON \
  -DZLIB_USE_EXTERNAL=OFF -DZLIB_ROOT=$MY \
  -DZLIB_INCLUDE_DIR=$MY/include -DZLIB_LIBRARY=$MY/lib/libz.a \
  -DCMAKE_C_FLAGS="$GLOBAL_CFLAGS -I$MY/include -I$JAVA_HOME/include -I$JAVA_HOME/include/$JAVA_OS" -DCMAKE_EXE_LINKER_FLAGS="-L$MY/lib" -DCMAKE_INSTALL_PREFIX=$H5 \
- -DALLOW_UNSUPPORTED=on -DHDF5_BUILD_HL_LIB=off -DHDF5_BUILD_HL_TOOLS=off -S .. -B .
+ -DALLOW_UNSUPPORTED=ON -DHDF5_BUILD_HL_LIB=OFF -DHDF5_BUILD_HL_TOOLS=OFF $CMAKE_WIN32_OPTS -S .. -B .
 
 if [ -n "$TESTCOMP" ]; then
     # not necessary on GH actions as runner is not root
@@ -38,6 +42,8 @@ fi
 if [ $PLAT_OS == "win32" ]; then
     # add quotes to classpath parameter
     find java -name build.make -exec sed -i -b -r -e 's|classpath ([^ ]+)|classpath "\1"|' '{}' \;
+    # add static pthread to shared library
+    sed -i -b -r -e 's|(-lkernel32)|/mingw64/lib/libwinpthread.a \1|' src/CMakeFiles/hdf5-shared.dir/build.make
 fi
 
 make VERBOSE=1 install
@@ -54,8 +60,9 @@ mkdir -p $DEST
 cp $JARFILE $DEST
 shopt -s extglob # to use extended glob (needs to be outside if statement)
 if [ $PLAT_OS == "win32" ]; then
-    cp -H $H5/bin/libhdf5.${LIBEXT} $DEST/hdf5.${LIBEXT}
-    cp $H5/lib/libhdf5_java.${LIBEXT} $DEST/hdf5_java.${LIBEXT}
+    cp -H $H5/bin/hdf5.${LIBEXT} $DEST
+    cp $H5/lib/hdf5_java.${LIBEXT} $DEST
+    mv $H5/lib/hdf5.lib $H5/lib/libhdf5.dll.a # rename import library so filter plugins can link to DLL
 elif [ $PLAT_OS == "macos" ]; then
     cp -H $H5/lib/libhdf5.+([0-9]).${LIBEXT} $DEST
     cp $H5/lib/libhdf5_java.${LIBEXT} $DEST
