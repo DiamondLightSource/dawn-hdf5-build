@@ -124,7 +124,12 @@ if [ $CROSS_BUILD == "y" ]; then
         dlib=$(basename $l)
         if [ ! -f $U_DEST/$dlib ]; then
             lipo -create $l $X_DEST/$dlib -output $U_DEST/$dlib
+            install_name_tool -change "@rpath/$H5_DYLIB" "@loader_path/$H5_DYLIB" $U_DEST/$dlib
         fi
+    done
+else
+    for l in $B_DEST/*.dylib; do
+        install_name_tool -change "@rpath/$H5_DYLIB" "@loader_path/$H5_DYLIB" $l
     done
 fi
 
