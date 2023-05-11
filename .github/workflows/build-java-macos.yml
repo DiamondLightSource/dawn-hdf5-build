@@ -17,6 +17,7 @@ on:
         default: n
         type: string
       debug_enabled:
+        type: boolean
         description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
         required: false
         default: false
@@ -34,17 +35,17 @@ jobs:
       - name: Make macOS bindings
         env:
           PLAT_OS: macos
-          CROSS_BUILD: ${{ github.event.inputs.cross_build }}
+          CROSS_BUILD: ${{ inputs.cross_build }}
         run: |
           ./releng/build_macos_bindings.sh
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
         # if: ${{ failure() }}
         with:
           limit-access-to-actor: true
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/upload-artifact@v3
         with:
