@@ -9,16 +9,25 @@
 # define TESTCOMP to test compression (takes a long time)
 
 # codecs' version and checksum
-ZLIB_VER=1.2.12
-ZLIB_CHK=91844808532e5ce316b3c010929493c0244f3d37593afd6de04f71821d5136d9
-LZ4_VER=1.9.3
-LZ4_CHK=030644df4611007ff7dc962d981f390361e6c97a34e5cbc393ddfbe019ffe2c1
+ZLIB_URL="https://www.zlib.net"
+ZLIB_VER=1.2.13
+ZLIB_CHK=b3a24de97a8fdbc835b9833169501030b8977031bcb54b3b3ac13740f846ab30
+
+LZ4_URL="https://github.com/lz4/lz4/archive/refs/tags"
+LZ4_VER=1.9.4
+LZ4_CHK=0b0e3aa07c8c063ddf40b082bdf7e37a1562bda40a0ff5272957f3e987e0e54b
+
+LZF_URL="http://dist.schmorp.de/liblzf"
 LZF_SRC=liblzf-3.6
 LZF_CHK=9c5de01f7b9ccae40c3f619d26a7abec9986c06c36d260c179cedd04b89fb46a
-ZSTD_VER=1.5.2
-ZSTD_CHK=7c42d56fac126929a6a85dbc73ff1db2411d04f104fae9bdea51305663a83fd0
-CB_VER=1.21.1
-CB_CHK=f387149eab24efa01c308e4cba0f59f64ccae57292ec9c794002232f7903b55b
+
+ZSTD_URL="https://github.com/facebook/zstd/releases/download"
+ZSTD_VER=1.5.5
+ZSTD_CHK=9c4396cc829cfae319a6e2615202e82aad41372073482fce286fac78646d3ee4
+
+CB_URL="https://github.com/Blosc/c-blosc/archive/refs/tags"
+CB_VER=1.21.2
+CB_CHK=e5b4ddb4403cbbad7aab6e9ff55762ef298729c8a793c6147160c771959ea2aa
 
 case $PLAT_OS in
   linux)
@@ -50,10 +59,10 @@ download_check_extract_pushd() {
     DL_URL=$4
 
     if [ ! -d $DL_SRC ]; then
-        echo "$DL_CHECKSUM  $DL_TARBALL" > sha256.chksum
+        
 
         curl -fsSLO $DL_URL/$DL_TARBALL
-        sha256sum -c sha256.chksum
+        echo "$DL_CHECKSUM  $DL_TARBALL" | sha256sum -c -
         if [ $? -ne 0 ]; then
           echo "$DL_TARBALL download does not match checksum"
           exit 1
@@ -77,7 +86,7 @@ patch_if_needed() {
 pushd $MS
 
 ZLIB_SRC=zlib-$ZLIB_VER
-download_check_extract_pushd $ZLIB_SRC ${ZLIB_SRC}.tar.gz $ZLIB_CHK "https://www.zlib.net"
+download_check_extract_pushd $ZLIB_SRC ${ZLIB_SRC}.tar.gz $ZLIB_CHK "$ZLIB_URL"
 # unpack and compile static
 CFLAGS="$GLOBAL_CFLAGS" ./configure --prefix=$MY --64 --static
 make clean
@@ -88,7 +97,7 @@ make install
 popd
 
 
-download_check_extract_pushd lz4-$LZ4_VER v${LZ4_VER}.tar.gz $LZ4_CHK "https://github.com/lz4/lz4/archive"
+download_check_extract_pushd lz4-$LZ4_VER v${LZ4_VER}.tar.gz $LZ4_CHK "$LZ4_URL"
 make clean
 if [ -n "$TESTCOMP" ]; then
     make CFLAGS="$GLOBAL_CFLAGS" PREFIX=$MY test
@@ -98,7 +107,7 @@ rm -f $MY/lib/liblz4.${LIBEXT}*
 popd
 
 
-download_check_extract_pushd $LZF_SRC ${LZF_SRC}.tar.gz $LZF_CHK "http://dist.schmorp.de/liblzf"
+download_check_extract_pushd $LZF_SRC ${LZF_SRC}.tar.gz $LZF_CHK "$LZF_URL"
 if [ $PLAT_OS == "win32" ]; then
     patch_if_needed $CHECKOUT_DIR/releng/liblzf-mingw64.patch
 fi
@@ -109,7 +118,7 @@ popd
 
 
 ZSTD_SRC=zstd-$ZSTD_VER
-download_check_extract_pushd $ZSTD_SRC ${ZSTD_SRC}.tar.gz $ZSTD_CHK "https://github.com/facebook/zstd/releases/download/v$ZSTD_VER"
+download_check_extract_pushd $ZSTD_SRC ${ZSTD_SRC}.tar.gz $ZSTD_CHK "$ZSTD_URL/v$ZSTD_VER"
 if [ $PLAT_OS == "win32" ]; then
     patch_if_needed $CHECKOUT_DIR/releng/zstd-msys.patch
 fi
@@ -125,7 +134,7 @@ rm -f $MY/lib/libzstd.${LIBEXT}*
 popd
 
 
-download_check_extract_pushd c-blosc-$CB_VER v${CB_VER}.tar.gz $CB_CHK "https://github.com/Blosc/c-blosc/archive/refs/tags"
+download_check_extract_pushd c-blosc-$CB_VER v${CB_VER}.tar.gz $CB_CHK "$CB_URL"
 rm -rf build
 mkdir -p build && pushd build
 if [ $ARCH != "x86_64" ]; then
@@ -140,7 +149,7 @@ if [ -n "$TESTCOMP" ]; then
     make VERBOSE=1 test
 fi
 make install
-rm -f $MY/lib/libblosc.${LIBEXT}*
+cp -p $MY/lib64/libblosc.a $MY/lib/
 popd
 popd
 

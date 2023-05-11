@@ -42,6 +42,8 @@ else
     X_ARCH=x86_64
 fi
 
+. releng/prepare_source.sh
+
 H5_DYLIB=libhdf5.103.dylib
 
 set_arch_envs() {

@@ -1,8 +1,8 @@
 diff --git a/configure.ac b/configure.ac
-index 2c895c373f..cd4a4afa14 100644
+index 229a567e1..2a1fb4215 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -555,7 +555,7 @@ else
+@@ -556,7 +556,7 @@ else
    PAC_C_MAX_REAL_PRECISION=$LDBL_DIG
  fi
  AC_DEFINE_UNQUOTED([PAC_C_MAX_REAL_PRECISION], $PAC_C_MAX_REAL_PRECISION, [Determine the maximum decimal precision in C])
@@ -11,7 +11,7 @@ index 2c895c373f..cd4a4afa14 100644
  
  ## ----------------------------------------------------------------------
  ## Check if they would like the Fortran interface compiled
-@@ -3450,29 +3450,43 @@ esac
+@@ -3380,29 +3380,43 @@ esac
  ## The machine's conversion gets the correct value.  We define the macro and disable
  ## this kind of test until we figure out what algorithm they use.
  ##
@@ -68,7 +68,7 @@ index 2c895c373f..cd4a4afa14 100644
  fi
  
  ## ----------------------------------------------------------------------
-@@ -3483,25 +3497,39 @@ fi
+@@ -3413,25 +3427,39 @@ fi
  ## ..., 7fffff..., the compiler uses a unknown algorithm.  We define a
  ## macro and skip the test for now until we know about the algorithm.
  ##
@@ -121,7 +121,7 @@ index 2c895c373f..cd4a4afa14 100644
  fi
  
  ## ----------------------------------------------------------------------
-@@ -3515,24 +3543,39 @@ fi
+@@ -3445,24 +3473,39 @@ fi
  ## 0x4351ccf385ebc8a0ffcc... will make the converted values wildly wrong.
  ## This test detects this wrong behavior and disable the test.
  ##
@@ -174,7 +174,7 @@ index 2c895c373f..cd4a4afa14 100644
  
  
 diff --git a/m4/aclocal_fc.m4 b/m4/aclocal_fc.m4
-index 9d01f47a92..143d8ad158 100644
+index 5d7bca9be..bdc7544e7 100644
 --- a/m4/aclocal_fc.m4
 +++ b/m4/aclocal_fc.m4
 @@ -406,37 +406,21 @@ AC_LANG_POP([Fortran])

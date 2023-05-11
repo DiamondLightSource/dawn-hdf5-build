@@ -7,7 +7,7 @@ export H5=$BASE_DIR/build/hdf5/$PLAT_OS/$ARCH
 mkdir -p $H5
 
 # use checked out version; no need to unpack
-pushd $CHECKOUT_DIR
+pushd $HDF5_SRC
 
 
 rm -rf hdf5-build
