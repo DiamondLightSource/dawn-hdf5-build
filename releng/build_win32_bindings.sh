@@ -8,6 +8,8 @@ if [ -z "$DEST_DIR" ]; then
     export DEST_DIR="$PWD/dist"
 fi
 
+export MSYS=winsymlinks:native # to unpack zstd tarball
+
 CMAKE=cmake
 CMAKE_OPTS="-G MSYS Makefiles"
 export CMAKE CMAKE_OPTS
