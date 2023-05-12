@@ -53,33 +53,32 @@ mkdir -p "$MY"
 rm -rf "$MY/bin" "$MY/lib"
 
 download_check_extract_pushd() {
-    DL_SRC=$1
-    DL_TARBALL=$2
-    DL_CHECKSUM=$3
-    DL_URL=$4
+  DL_SRC=$1
+  DL_TARBALL=$2
+  DL_CHECKSUM=$3
+  DL_URL=$4
 
-    if [ ! -d $DL_SRC ]; then
-        
-
-        curl -fsSLO $DL_URL/$DL_TARBALL
-        echo "$DL_CHECKSUM  $DL_TARBALL" | sha256sum -c -
-        if [ $? -ne 0 ]; then
-          echo "$DL_TARBALL download does not match checksum"
-          exit 1
-        fi
-
-        tar xzf $DL_TARBALL
+  if [ ! -d $DL_SRC ]; then
+    if [ ! -f $DL_TARBALL ]; then
+      curl -fsSLO $DL_URL/$DL_TARBALL
+      echo "$DL_CHECKSUM  $DL_TARBALL" | sha256sum -c -
+      if [ $? -ne 0 ]; then
+        echo "$DL_TARBALL download does not match checksum"
+        exit 1
+      fi
     fi
-    pushd $DL_SRC
+    tar xzf $DL_TARBALL
+  fi
+  pushd $DL_SRC
 }
 
 patch_if_needed() {
-    pf=$1
-    tf=$(basename $pf)
-    if [ ! -f "$tf.done" ]; then
-        patch -p1 < $pf
-        touch "$tf.done"
-    fi
+  pf=$1
+  tf=$(basename $pf)
+  if [ ! -f "$tf.done" ]; then
+    patch -p1 < $pf
+    touch "$tf.done"
+  fi
 }
 
 # fetch, build and install compression libraries
@@ -149,7 +148,12 @@ if [ -n "$TESTCOMP" ]; then
     make VERBOSE=1 test
 fi
 make install
-cp -p $MY/lib64/libblosc.a $MY/lib/
+if [ -f "$MY/lib/libblosc.${LIBEXT}" ]; then
+  rm -f $MY/lib/libblosc.${LIBEXT}*
+fi
+if [ -f "$MY/lib64/libblosc.a" ]; then
+  cp -p $MY/lib64/libblosc.a $MY/lib/
+fi
 popd
 popd
 
