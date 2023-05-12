@@ -29,9 +29,14 @@ CB_URL="https://github.com/Blosc/c-blosc/archive/refs/tags"
 CB_VER=1.21.2
 CB_CHK=e5b4ddb4403cbbad7aab6e9ff55762ef298729c8a793c6147160c771959ea2aa
 
+ZLIB_64=--64
+
 case $PLAT_OS in
   linux)
     LIBEXT=so
+    if [ $ARCH == "aarch64" ]; then
+      ZLIB_64="" # do not use --64 for Aarch64 build as gcc does not recognise -m64
+    fi
     ;;
   macos)
     LIBEXT=dylib
@@ -87,7 +92,7 @@ pushd $MS
 ZLIB_SRC=zlib-$ZLIB_VER
 download_check_extract_pushd $ZLIB_SRC ${ZLIB_SRC}.tar.gz $ZLIB_CHK "$ZLIB_URL"
 # unpack and compile static
-CFLAGS="$GLOBAL_CFLAGS" ./configure --prefix=$MY --64 --static
+CFLAGS="$GLOBAL_CFLAGS" ./configure --prefix=$MY $ZLIB_64 --static
 make clean
 if [ -n "$TESTCOMP" ]; then
     make check
