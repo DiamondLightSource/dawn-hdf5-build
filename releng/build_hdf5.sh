@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# expects BASE_DIR, PLAT_OS, ARCH, GLOBAL_CFLAGS, CHECKOUT_DIR, MY, TESTCOMP, DEST_DIR prefix for artifacts, LIBEXT
+# expects BASE_DIR, PLAT_OS, ARCH, GLOBAL_CFLAGS, MY, TESTCOMP, DEST_DIR prefix for artifacts, LIBEXT
 # exports H5 (prefix for installation), DEST where specific artifacts are stored
 
 export H5=$BASE_DIR/build/hdf5/$PLAT_OS/$ARCH
@@ -32,7 +32,7 @@ if [ -n "$TESTCOMP" ]; then
     # not necessary on GH actions as runner is not root
     if false; then
         # remove expected exception as root can write into read-only files so no exception gets thrown (see junit-failure.txt)
-        OLD_FILE=$CHECKOUT_DIR/java/test/TestH5Fbasic
+        OLD_FILE=$HDF5_SRC/java/test/TestH5Fbasic
         mv ${OLD_FILE}.java ${OLD_FILE}.orig
         awk '/testH5Fopen_read_only/{sub(/Test([^\n]*)/, "Test", last)} NR>1 {print last} {last=$0} END {print last}' ${OLD_FILE}.orig > ${OLD_FILE}.java
     fi
