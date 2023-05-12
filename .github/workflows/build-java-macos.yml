@@ -45,7 +45,6 @@ jobs:
         # if: ${{ failure() }}
         with:
           limit-access-to-actor: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/upload-artifact@v3
         with:
