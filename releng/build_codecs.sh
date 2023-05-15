@@ -139,25 +139,32 @@ popd
 
 
 download_check_extract_pushd c-blosc-$CB_VER v${CB_VER}.tar.gz $CB_CHK "$CB_URL"
+patch_if_needed $CHECKOUT_DIR/releng/c-blosc.patch
 rm -rf build
 mkdir -p build && pushd build
 if [ $ARCH != "x86_64" ]; then
     CMAKE_DEACTIVATE_X86_64='-DDEACTIVATE_SSE2=ON -DDEACTIVATE_AVX2=ON'
 fi
+if [ -z "$TESTCOMP" ]; then
+    CMAKE_NO_TESTS='-DBUILD_SHARED=OFF -DBUILD_TESTS=OFF -DBUILD_FUZZERS=OFF -DBUILD_BENCHMARKS=OFF'
+fi
 $CMAKE "$CMAKE_OPTS" -DCMAKE_INSTALL_PREFIX=$MY -DPREFER_EXTERNAL_LZ4=ON -DPREFER_EXTERNAL_ZLIB=ON -DPREFER_EXTERNAL_ZSTD=ON \
 -DLZ4_INCLUDE_DIR=$MY/include -DLZ4_LIBRARY=$MY/lib/liblz4.a -DZSTD_INCLUDE_DIR=$MY/include -DZSTD_LIBRARY=$MY/lib/libzstd.a \
--DCMAKE_C_FLAGS="$GLOBAL_CFLAGS -I$MY/include" -DCMAKE_EXE_LINKER_FLAGS="-L$MY/lib"  -DZLIB_ROOT=$MY -DLZ4_ROOT=$MY -DZstd_ROOT=$MY \
-$CMAKE_DEACTIVATE_X86_64 -S .. -B .
+-DCMAKE_C_FLAGS="$GLOBAL_CFLAGS -I$MY/include" -DCMAKE_EXE_LINKER_FLAGS="-L$MY/lib" -DZLIB_ROOT=$MY -DLZ4_ROOT=$MY -DZstd_ROOT=$MY \
+$CMAKE_DEACTIVATE_X86_64 $CMAKE_NO_TESTS  -S .. -B .
 make clean
 if [ -n "$TESTCOMP" ]; then
     make VERBOSE=1 test
 fi
 make install
-if [ -f "$MY/lib/libblosc.${LIBEXT}" ]; then
-  rm -f $MY/lib/libblosc.${LIBEXT}*
+
+CB_ANY_FILES="$MY/lib/libblosc?${LIBEXT}*"
+if [ -n "$CB_ANY_FILES" ]; then
+  rm -f $CB_ANY_FILES
 fi
-if [ -f "$MY/lib64/libblosc.a" ]; then
-  cp -p $MY/lib64/libblosc.a $MY/lib/
+CB_LIB64_FILE="$MY/lib64/libblosc.a"
+if [ -f "$CB_LIB64_FILE" ]; then
+  cp -p "$CB_LIB64_FILE" $MY/lib/
 fi
 popd
 popd

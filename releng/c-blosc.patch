@@ -1,0 +1,14 @@
+diff -ur c-blosc-1.21.2/CMakeLists.txt c-blosc-1.21.2-new/CMakeLists.txt
+--- c-blosc-1.21.2/CMakeLists.txt	2022-12-07 10:34:44.000000000 +0000
++++ c-blosc-1.21.2-new/CMakeLists.txt	2023-05-15 13:21:19.500442564 +0100
+@@ -156,7 +156,9 @@
+ if(NOT DEACTIVATE_ZLIB)
+     # import the ZLIB_ROOT environment variable to help finding the zlib library
+     if(PREFER_EXTERNAL_ZLIB)
+-        set(ZLIB_ROOT $ENV{ZLIB_ROOT})
++		if(NOT DEFINED ZLIB_ROOT)
++			set(ZLIB_ROOT $ENV{ZLIB_ROOT})
++		endif()
+         find_package(ZLIB)
+         if(NOT ZLIB_FOUND )
+             message(STATUS "No zlib found.  Using internal sources.")

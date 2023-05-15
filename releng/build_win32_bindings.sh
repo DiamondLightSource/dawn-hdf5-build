@@ -16,7 +16,14 @@ export CMAKE CMAKE_OPTS
 
 export PLAT_OS=win32
 
-JAVA_HOME=`echo $JAVA_HOME_11_X64 | sed -e 's,C:,/c,' | tr \\\\ /` # make a Unix path
+if [ -n "$JAVA_HOME_11_X64" ]; then
+  JAVA_HOME=`echo $JAVA_HOME_11_X64 | sed -e 's,C:,/c,' | tr \\\\ /` # make a Unix path
+elif [ -n "$JDKDIR" ]; then
+  JAVA_HOME="$JDKDIR"
+elif [ -z "$JAVA_HOME" ]; then
+  echo "Must define JAVA_HOME or override it with JAVA_HOME_11_X64 or JDKDIR"
+  exit 1
+fi
 JAVA_OS=$PLAT_OS
 ARCH=x86_64
 export JAVA_HOME JAVA_OS ARCH
