@@ -18,7 +18,7 @@ brew install openjdk@11
 export MACOSX_DEPLOYMENT_TARGET=10.9 # minimum macOS version Mavericks for XCode 12.1+
 
 if [ -z "$HOMEBREW_PREFIX" ]; then
-    HOMEBREW_PREFIX=$(realpath -L $(dirname $(which brew))/..)
+    HOMEBREW_PREFIX=$(realpath $(dirname $(which brew))/..)
 fi
 
 export JAVA_HOME=$HOMEBREW_PREFIX/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home
