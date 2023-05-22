@@ -24,7 +24,7 @@ fi
 export JAVA_HOME=$HOMEBREW_PREFIX/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home
 export CPPFLAGS="-I$JAVA_HOME/include"
 
-export PATH="$JAVA_HOME/bin:/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+export PATH="$JAVA_HOME/bin:$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
 
 # cmake3 already installed, for c-blosc
 export CMAKE=cmake
