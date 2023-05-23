@@ -62,6 +62,9 @@ set_arch_envs $B_ARCH
 . releng/build_codecs.sh
 B_MY=$MY
 
+RPATH_OLD="@rpath/$H5_DYLIB"
+RPATH_NEW="@loader_path/$H5_DYLIB"
+
 if [ $CROSS_BUILD == "y" ]; then
     set_arch_envs $X_ARCH
     export CC="clang -arch $ARCH"
@@ -85,7 +88,7 @@ if [ $CROSS_BUILD == "y" ]; then
     export MY=$U_MY
     export CMAKE_OSX_ARCHITECTURES="$B_ARCH;$X_ARCH"
     . releng/build_hdf5.sh
-    install_name_tool -change "@rpath/$H5_DYLIB" "@loader_path/$H5_DYLIB" $DEST/libhdf5_java.dylib
+    install_name_tool -change "$RPATH_OLD" "$RPATH_NEW" $DEST/libhdf5_java.dylib
     U_DEST=$DEST
 
     # Create thin versions of hdf5 dynamic library
@@ -103,7 +106,6 @@ if [ $CROSS_BUILD == "y" ]; then
     done
 else
     . releng/build_hdf5.sh
-    install_name_tool -change "@rpath/$H5_DYLIB" "@loader_path/$H5_DYLIB" $DEST/libhdf5_java.dylib
     B_DEST=$DEST
 fi
 
@@ -124,14 +126,20 @@ if [ $CROSS_BUILD == "y" ]; then
     # Create universal2 versions of dynamic libraries
     for l in $B_DEST/*.dylib; do
         dlib=$(basename $l)
+        install_name_tool -change "$RPATH_OLD" "$RPATH_NEW" $l
+        install_name_tool -change "$RPATH_OLD" "$RPATH_NEW" $X_DEST/$dlib
         if [ ! -f $U_DEST/$dlib ]; then
             lipo -create $l $X_DEST/$dlib -output $U_DEST/$dlib
-            install_name_tool -change "@rpath/$H5_DYLIB" "@loader_path/$H5_DYLIB" $U_DEST/$dlib
+            install_name_tool -change "$RPATH_OLD" "$RPATH_NEW" $U_DEST/$dlib
         fi
     done
+    otool -L $B_DEST/*.dylib
+    otool -L $X_DEST/*.dylib
+    otool -L $U_DEST/*.dylib
 else
     for l in $B_DEST/*.dylib; do
-        install_name_tool -change "@rpath/$H5_DYLIB" "@loader_path/$H5_DYLIB" $l
+        install_name_tool -change "$RPATH_OLD" "$RPATH_NEW" $l
     done
+    otool -L $B_DEST/*.dylib
 fi
 
