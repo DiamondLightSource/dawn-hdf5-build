@@ -45,6 +45,7 @@ fi
 . releng/prepare_source.sh
 
 H5_DYLIB=libhdf5.103.dylib
+H5_JAVA_DYLIB=libhdf5_java.100.dylib
 
 set_arch_envs() {
     l_arch=$1
@@ -88,6 +89,8 @@ if [ $CROSS_BUILD == "y" ]; then
     export MY=$U_MY
     export CMAKE_OSX_ARCHITECTURES="$B_ARCH;$X_ARCH"
     . releng/build_hdf5.sh
+    install_name_tool -id $H5_DYLIB $DEST/$H5_DYLIB
+    install_name_tool -id $H5_JAVA_DYLIB $DEST/libhdf5_java.dylib
     install_name_tool -change "$RPATH_OLD" "$RPATH_NEW" $DEST/libhdf5_java.dylib
     U_DEST=$DEST
 
@@ -106,6 +109,8 @@ if [ $CROSS_BUILD == "y" ]; then
     done
 else
     . releng/build_hdf5.sh
+    install_name_tool -id $H5_DYLIB $DEST/$H5_DYLIB
+    install_name_tool -id $H5_JAVA_DYLIB $DEST/libhdf5_java.dylib
     B_DEST=$DEST
 fi
 
@@ -130,7 +135,6 @@ if [ $CROSS_BUILD == "y" ]; then
         install_name_tool -change "$RPATH_OLD" "$RPATH_NEW" $X_DEST/$dlib
         if [ ! -f $U_DEST/$dlib ]; then
             lipo -create $l $X_DEST/$dlib -output $U_DEST/$dlib
-            install_name_tool -change "$RPATH_OLD" "$RPATH_NEW" $U_DEST/$dlib
         fi
     done
     otool -L $B_DEST/*.dylib
