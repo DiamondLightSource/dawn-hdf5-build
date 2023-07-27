@@ -1,0 +1,117 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>uk.ac.diamond.hdf5</groupId>
+	<artifactId>hdf5-all</artifactId>
+	<version>1.10.10-SNAPSHOT</version>
+	<packaging>bundle</packaging>
+	<organization>
+		<name>Diamond Light Source</name>
+	</organization>
+	<name>HDF5 Java Native Bindings</name>
+	<description>Wrapping of HDF5 Java API containing native libries and several HDF5 plugins</description>
+	<url>https://github.com/DiamondLightSource/dawn-hdf5-build</url>
+	<licenses>
+		<license>
+			<name>BSD 3-Clause License</name>
+			<url>https://opensource.org/license/bsd-3-clause/</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>Peter Chang</name>
+			<email>peter.chang@diamond.ac.uk</email>
+			<organization>Diamond Light Source</organization>
+			<organizationUrl>https://www.diamond.ac.uk</organizationUrl>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:git://github.com/DiamondLightSource/dawn-hdf5-build.git</connection>
+		<developerConnection>scm:git:ssh://github.com:DiamondLightSource/dawn-hdf5-build.git</developerConnection>
+		<url>https://github.com/DiamondLightSource/dawn-hdf5-build/tree/main</url>
+	</scm>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>5.1.9</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Export-Package>hdf*</Export-Package>
+						<Eclipse-BundleShape>dir</Eclipse-BundleShape>
+						<Bundle-SymbolicName>hdf.hdf5lib</Bundle-SymbolicName>
+						<Bundle-NativeCode>lib/linux-x86_64/libhdf5.so; lib/linux-x86_64/libhdf5_java.so;osname=Linux; processor=x86_64,
+						lib/macosx-x86_64/libhdf5.103.dylib; lib/macosx-x86_64/libhdf5_java.dylib;osname=MacOSX; processor=x86_64,
+						lib/win32-x86_64/hdf5.dll; lib/win32-x86_64/hdf5_java.dll;osname=Win32; processor=x86_64,
+						lib/linux-aarch64/libhdf5.so; lib/linux-aarch64/libhdf5_java.so;osname=Linux; processor=aarch64,
+						lib/macosx-aarch64/libhdf5.103.dylib; lib/macosx-aarch64/libhdf5_java.dylib;osname=MacOSX; processor=aarch64
+						,*</Bundle-NativeCode>
+					</instructions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.2.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<excludes>lib/</excludes>
+					<archive>
+						<manifestEntries>
+							<Bundle-Name>${project.name} Source</Bundle-Name>
+							<Bundle-SymbolicName>hdf.hdf5lib.source</Bundle-SymbolicName>
+							<Bundle-Version>${project.version}</Bundle-Version>
+							<Bundle-Vendor>${project.organization.name}</Bundle-Vendor>
+							<Eclipse-SourceBundle>hdf.hdf5lib;version="${project.version}"</Eclipse-SourceBundle>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.5.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<failOnError>false</failOnError>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.30</version>
+		</dependency>
+	</dependencies>
+
+
+</project>
