@@ -51,3 +51,7 @@ jobs:
           name: hdf5-build-macos
           path: dist/
 
+      - uses: actions/upload-artifact@v3
+        with:
+          name: hdf5-java-source
+          path: dist-src

@@ -7,7 +7,9 @@ fi
 if [ -z "$DEST_DIR" ]; then
     export DEST_DIR="$PWD/dist"
 fi
-
+if [ -z "$JAVA_SRC_OUTPUT_DIR" ]; then
+    export JAVA_SRC_OUTPUT_DIR="$PWD/dist-src"
+fi
 if [ -z "$CROSS_BUILD" ]; then
     CROSS_BUILD=n
 fi
@@ -147,3 +149,5 @@ else
     otool -L $B_DEST/*.dylib
 fi
 
+# Copy Java source to be archived
+cp -a ${HDF5_SRC}/java/src ${JAVA_SRC_OUTPUT_DIR}/
