@@ -1,0 +1,114 @@
+--- a/java/src/hdf/hdf5lib/H5.java
++++ b/java/src/hdf/hdf5lib/H5.java
+@@ -13,6 +13,9 @@
+ package hdf.hdf5lib;
+ 
+ import java.io.File;
++import java.io.IOException;
++import java.lang.reflect.InvocationTargetException;
++import java.lang.reflect.Method;
+ import java.nio.ByteBuffer;
+ import java.util.Collection;
+ import java.util.LinkedHashSet;
+@@ -351,10 +354,15 @@ public class H5 implements java.io.Serializable {
+ 
+         // else load standard library
+         if (!isLibraryLoaded) {
++            String osName = System.getProperty("os.name");
++            String libNameFormat = osName.startsWith("Mac OS X") ? "%s.103" : "%s"; // need to do this to minimise build differences
+             try {
++                // to need to preload dependent library (as its internal link is wrong most of the time)
++                System.loadLibrary(String.format(libNameFormat, "hdf5"));
++
+                 s_libraryName = "hdf5_java";
+                 mappedName    = System.mapLibraryName(s_libraryName);
+-                System.loadLibrary("hdf5_java");
++                System.loadLibrary(s_libraryName);
+                 isLibraryLoaded = true;
+             }
+             catch (Throwable err) {
+@@ -389,6 +397,83 @@ public class H5 implements java.io.Serializable {
+         if ((majnum != null) && (minnum != null) && (relnum != null)) {
+             H5.H5check_version(majnum.intValue(), minnum.intValue(), relnum.intValue());
+         }
++
++        // check if bundled HDF5 plugin directory is in HDF5_PLUGIN_PATH
++        final String HDF_HDF5LIB = "hdf.hdf5lib";
++        boolean found = false;
++        String libPath = System.getenv("HDF5_PLUGIN_PATH");
++        if (libPath != null && !libPath.isEmpty()) {
++            for (String p : libPath.split(File.pathSeparator)) {
++                if (p.contains(HDF_HDF5LIB)) {
++                    System.err.println("HDF5 plugin directory found in HDF5_PLUGIN_PATH: " + p);
++                    log.info("HDF5 plugin directory found in HDF5_PLUGIN_PATH");
++                    found = true;
++                    break;
++                }
++            }
++        }
++
++        if (!found) { // find directory with bundled HDF5 plugins in library path
++            log.info("HDF5 plugin directory not found in HDF5_PLUGIN_PATH so checking library path");
++            libPath = System.getProperty("java.library.path");
++            if (libPath != null && !libPath.isEmpty()) {
++                for (String p : libPath.split(File.pathSeparator)) {
++                    if (p.contains(HDF_HDF5LIB)) {
++                        try {
++                            log.info("Prepending {} as plugin path", p);
++                            H5.H5PLprepend(p);
++                            System.err.println("HDF5 plugin directory found in library path: " + p);
++                            log.info("HDF5 plugin directory found in library path");
++                        } catch (HDF5LibraryException e) {
++                            log.error("Could not add {} as plugin path", p, e);
++                        }
++                        found = true;
++                        break;
++                    }
++                }
++            }
++        }
++
++        if (!found) { // nasty hack to use OSGi class loader to find bundle-nativecode
++            System.err.println("HDF5 plugin directory not found so trying with class loader");
++            log.info("HDF5 plugin directory not found so trying with class loader");
++            ClassLoader cl = H5.class.getClassLoader();
++            try { // only works for Equinox's class loader
++                Method m = cl.getClass().getMethod("getClasspathManager");
++
++                Object cm = m.invoke(cl);
++
++                try {
++                    m = cm.getClass().getMethod("findLibrary", String.class);
++                    String p = (String) m.invoke(cm, s_libraryName);
++
++                    try {
++                        File f = new File(p).getCanonicalFile();
++                        if (f.isFile()) {
++                            p = f.getParent();
++                            log.info("Prepending {} as plugin path", p);
++                            H5.H5PLprepend(p);
++                            found = true;
++                        }
++                    } catch (HDF5LibraryException | IOException e) {
++                        log.error("Could not add {} as plugin path", p, e);
++                    }
++                } catch (NoSuchMethodException | SecurityException e) {
++                    log.info("No findLibrary method available in class path manager", e);
++                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
++                    log.info("Cannot invoke findLibrary method", e);
++                }
++            } catch (NoSuchMethodException | SecurityException e) {
++                log.info("No getClasspathManager method available in class loader", e);
++            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
++                log.info("Cannot invoke getClasspathManager method", e);
++            }
++
++            if (!found) {
++                System.err.println("HDF5 library could not be added as plugin directory");
++                log.info("HDF5 library could not be added as plugin directory");
++            }
++        }
+     }
+ 
+     // ////////////////////////////////////////////////////////////
+
