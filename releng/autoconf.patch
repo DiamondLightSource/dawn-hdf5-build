@@ -2,16 +2,16 @@ diff --git a/configure.ac b/configure.ac
 index 229a567e1..2a1fb4215 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -556,7 +556,7 @@ else
-   PAC_C_MAX_REAL_PRECISION=$LDBL_DIG
- fi
- AC_DEFINE_UNQUOTED([PAC_C_MAX_REAL_PRECISION], $PAC_C_MAX_REAL_PRECISION, [Determine the maximum decimal precision in C])
--AC_MSG_RESULT([$PAC_C_MAX_REAL_PRECISION])
-+#AC_MSG_RESULT([$PAC_C_MAX_REAL_PRECISION])
+@@ -579,7 +579,7 @@
+     PAC_C_MAX_REAL_PRECISION=$LDBL_DIG
+   fi
+   AC_DEFINE_UNQUOTED([PAC_C_MAX_REAL_PRECISION], $PAC_C_MAX_REAL_PRECISION, [Determine the maximum decimal precision in C])
+-  AC_MSG_RESULT([$PAC_C_MAX_REAL_PRECISION])
++# AC_MSG_RESULT([$PAC_C_MAX_REAL_PRECISION])
  
- ## ----------------------------------------------------------------------
- ## Check if they would like the Fortran interface compiled
-@@ -3380,29 +3380,43 @@ esac
+ ## We will output an include file for Fortran, H5config_f.inc which
+ ## contains various configure definitions used by the Fortran Library.
+@@ -3379,29 +3379,43 @@
  ## The machine's conversion gets the correct value.  We define the macro and disable
  ## this kind of test until we figure out what algorithm they use.
  ##
@@ -68,7 +68,7 @@ index 229a567e1..2a1fb4215 100644
  fi
  
  ## ----------------------------------------------------------------------
-@@ -3413,25 +3427,39 @@ fi
+@@ -3412,25 +3426,39 @@
  ## ..., 7fffff..., the compiler uses a unknown algorithm.  We define a
  ## macro and skip the test for now until we know about the algorithm.
  ##
@@ -121,7 +121,7 @@ index 229a567e1..2a1fb4215 100644
  fi
  
  ## ----------------------------------------------------------------------
-@@ -3445,24 +3473,39 @@ fi
+@@ -3444,24 +3472,39 @@
  ## 0x4351ccf385ebc8a0ffcc... will make the converted values wildly wrong.
  ## This test detects this wrong behavior and disable the test.
  ##
@@ -172,61 +172,4 @@ index 229a567e1..2a1fb4215 100644
 +#  AC_MSG_RESULT([no])
  fi
  
- 
-diff --git a/m4/aclocal_fc.m4 b/m4/aclocal_fc.m4
-index 5d7bca9be..bdc7544e7 100644
---- a/m4/aclocal_fc.m4
-+++ b/m4/aclocal_fc.m4
-@@ -406,37 +406,21 @@ AC_LANG_POP([Fortran])
- 
- AC_DEFUN([PAC_FC_LDBL_DIG],[
- AC_MSG_CHECKING([maximum decimal precision for C])
--  AC_LANG_CONFTEST([
--      AC_LANG_PROGRAM([
--                #include <float.h>
--                #include <stdio.h>
--                #define CHECK_FLOAT128 $ac_cv_sizeof___float128
--                #if CHECK_FLOAT128!=0
--                # if $HAVE_QUADMATH!=0
--                #include <quadmath.h>
--                # endif
--                # ifdef FLT128_DIG
--                #define C_FLT128_DIG FLT128_DIG
--                # else
--                #define C_FLT128_DIG 0
--                # endif
--                #else
-+AC_COMPUTE_INT(LDBL_DIG, [__STDC_VERSION__ >= 199901L ? DECIMAL_DIG : LDBL_DIG],
-+               [#include <float.h>
-+                #if $ac_cv_sizeof___float128 && $HAVE_QUADMATH
-+                #  include <quadmath.h>
-+                #endif], [AC_MSG_ERROR([C program fails to build or run!])])
-+AC_COMPUTE_INT(FLT128_DIG, [C_FLT128_DIG],
-+               [#include <float.h>
-                 #define C_FLT128_DIG 0
--                #endif
--                #if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
--                #define C_LDBL_DIG DECIMAL_DIG
--                #else
--                #define C_LDBL_DIG LDBL_DIG
--                #endif
--                ],[[
--                  fprintf(stderr, "%d\n%d\n", C_LDBL_DIG, C_FLT128_DIG);
--                ]])
--        ])
--        AC_RUN_IFELSE([],[
--            LDBL_DIG=$(./conftest$EXEEXT 2>&1 | sed -n '1p')
--            FLT128_DIG=$(./conftest$EXEEXT 2>&1 | sed -n '2p')
--        ],[
--            AC_MSG_ERROR([C program fails to build or run!])
--        ],[])
-+                #if $ac_cv_sizeof___float128 && $HAVE_QUADMATH
-+                #  include <quadmath.h>
-+                #  ifdef FLT128_DIG
-+                #    undef C_FLT128_DIG
-+                #    define C_FLT128_DIG FLT128_DIG
-+                #  else
-+                #  endif
-+                #endif], [AC_MSG_ERROR([C program fails to build or run!])])
- ])
  
