@@ -61,7 +61,7 @@ cp $JARFILE $DEST
 shopt -s extglob # to use extended glob (needs to be outside if statement)
 if [ $PLAT_OS == "win32" ]; then
     cp -H $H5/bin/hdf5.${LIBEXT} $DEST
-    cp $H5/lib/hdf5_java.${LIBEXT} $DEST
+    cp $H5/bin/hdf5_java.${LIBEXT} $DEST
     mv $H5/lib/hdf5.lib $H5/lib/libhdf5.dll.a # rename import library so filter plugins can link to DLL
 elif [ $PLAT_OS == "macos" ]; then
     cp -H $H5/lib/libhdf5.+([0-9]).${LIBEXT} $DEST

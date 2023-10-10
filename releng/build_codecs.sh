@@ -10,8 +10,8 @@
 
 # codecs' version and checksum
 ZLIB_URL="https://www.zlib.net"
-ZLIB_VER=1.2.13
-ZLIB_CHK=b3a24de97a8fdbc835b9833169501030b8977031bcb54b3b3ac13740f846ab30
+ZLIB_VER=1.3
+ZLIB_CHK=ff0ba4c292013dbc27530b3a81e1f9a813cd39de01ca5e0f8bf355702efa593e
 
 LZ4_URL="https://github.com/lz4/lz4/archive/refs/tags"
 LZ4_VER=1.9.4
@@ -26,8 +26,8 @@ ZSTD_VER=1.5.5
 ZSTD_CHK=9c4396cc829cfae319a6e2615202e82aad41372073482fce286fac78646d3ee4
 
 CB_URL="https://github.com/Blosc/c-blosc/archive/refs/tags"
-CB_VER=1.21.2
-CB_CHK=e5b4ddb4403cbbad7aab6e9ff55762ef298729c8a793c6147160c771959ea2aa
+CB_VER=1.21.5
+CB_CHK=32e61961bbf81ffea6ff30e9d70fca36c86178afd3e3cfa13376adec8c687509
 
 ZLIB_64=--64
 
@@ -57,15 +57,18 @@ mkdir -p "$MY"
 
 rm -rf "$MY/bin" "$MY/lib"
 
+CACHE=$CHECKOUT_DIR/cache
+mkdir -p $CACHE
+
 download_check_extract_pushd() {
   DL_SRC=$1
-  DL_TARBALL=$2
+  DL_TARBALL=$CACHE/$2
   DL_CHECKSUM=$3
-  DL_URL=$4
+  DL_URL=$4/$2
 
   if [ ! -d $DL_SRC ]; then
     if [ ! -f $DL_TARBALL ]; then
-      curl -fsSLO $DL_URL/$DL_TARBALL
+      curl -fsSL -o $DL_TARBALL $DL_URL
       echo "$DL_CHECKSUM  $DL_TARBALL" | sha256sum -c -
       if [ $? -ne 0 ]; then
         echo "$DL_TARBALL download does not match checksum"
@@ -110,7 +113,7 @@ make CFLAGS="$GLOBAL_CFLAGS" PREFIX=$MY install
 rm -f $MY/lib/liblz4.${LIBEXT}*
 popd
 
-
+if [ ! "$SKIP_LZF" == "yes" ]; then
 download_check_extract_pushd $LZF_SRC ${LZF_SRC}.tar.gz $LZF_CHK "$LZF_URL"
 if [ $PLAT_OS == "win32" ]; then
     patch_if_needed $CHECKOUT_DIR/releng/liblzf-mingw64.patch
@@ -119,7 +122,7 @@ CFLAGS=$GLOBAL_CFLAGS ./configure --prefix=$MY $CROSS_HOST
 make clean
 make install
 popd
-
+fi
 
 ZSTD_SRC=zstd-$ZSTD_VER
 download_check_extract_pushd $ZSTD_SRC ${ZSTD_SRC}.tar.gz $ZSTD_CHK "$ZSTD_URL/v$ZSTD_VER"
