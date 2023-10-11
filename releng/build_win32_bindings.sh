@@ -28,7 +28,11 @@ JAVA_OS=$PLAT_OS
 ARCH=x86_64
 export JAVA_HOME JAVA_OS ARCH
 
-pacman -S --noconfirm --needed git
+export MY_MINGW_ENV_DIR=/ucrt64
+
+pacman -S --noconfirm --needed git patch make mingw-w64-x86_64-cmake mingw-w64-ucrt-x86_64-gcc
+
+export PATH="$MY_MINGW_ENV_DIR"/bin:"$PATH" # add universal C runtime compilers
 
 case $ARCH in
   aarch64)

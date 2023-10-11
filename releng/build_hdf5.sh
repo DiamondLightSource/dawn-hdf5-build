@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# expects BASE_DIR, PLAT_OS, ARCH, GLOBAL_CFLAGS, MY, TESTCOMP, DEST_DIR prefix for artifacts, LIBEXT
+# expects BASE_DIR, PLAT_OS, ARCH, GLOBAL_CFLAGS, MY, TESTCOMP, DEST_DIR prefix for artifacts, LIBEXT,
+# and MY_MINGW_ENV_DIR for C runtime specific directory
 # exports H5 (prefix for installation), DEST where specific artifacts are stored
 
 export H5=$BASE_DIR/build/hdf5/$PLAT_OS/$ARCH
@@ -43,7 +44,7 @@ if [ $PLAT_OS == "win32" ]; then
     # add quotes to classpath parameter
     find java -name build.make -exec sed -i -b -r -e 's|classpath ([^ ]+)|classpath "\1"|' '{}' \;
     # add static pthread to shared library
-    sed -i -b -r -e 's|(-lkernel32)|/mingw64/lib/libwinpthread.a \1|' src/CMakeFiles/hdf5-shared.dir/build.make
+    sed -i -b -r -e "s|(-lkernel32)|$MY_MINGW_ENV_DIR/lib/libwinpthread.a \1|" src/CMakeFiles/hdf5-shared.dir/build.make
 fi
 
 make VERBOSE=1 install
