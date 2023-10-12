@@ -28,8 +28,7 @@ case $ARCH in
     ;;
 esac
 
-JBIN=$(readlink -f `which java`)
-export JAVA_HOME=$(dirname $(dirname $JBIN))
+export JAVA_HOME=$(readlink -f /etc/alternatives/java_sdk_openjdk)
 export JAVA_OS=$PLAT_OS
 
 if [ $ARCH == "x86_64" ]; then
