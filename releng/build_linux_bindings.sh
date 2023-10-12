@@ -14,7 +14,7 @@ if [ -z "$DEST_DIR" ]; then
     export DEST_DIR="$START_DIR/dist"
 fi
 
-export CMAKE=cmake3
+export CMAKE=cmake
 
 # yum install -y python34 # for testing LZ4; python3-3.6 brought in by cmake
 
@@ -29,8 +29,7 @@ case $ARCH in
     ;;
 esac
 
-JBIN=$(readlink -f `which java`)
-export JAVA_HOME=$(dirname $(dirname $(dirname $JBIN)))
+export JAVA_HOME=$(readlink -f /etc/alternatives/java_sdk_openjdk)
 export JAVA_OS=$PLAT_OS
 
 if [ $ARCH == "x86_64" ]; then

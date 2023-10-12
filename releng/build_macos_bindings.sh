@@ -46,8 +46,9 @@ fi
 
 . releng/prepare_source.sh
 
-H5_DYLIB=libhdf5.103.dylib
-H5_JAVA_DYLIB=libhdf5_java.100.dylib
+MACOS_SO_VER=310
+H5_DYLIB=libhdf5.$MACOS_SO_VER.dylib
+H5_JAVA_DYLIB=libhdf5_java.$MACOS_SO_VER.dylib
 
 set_arch_envs() {
     l_arch=$1

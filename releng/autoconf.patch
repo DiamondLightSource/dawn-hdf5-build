@@ -2,7 +2,7 @@ diff --git a/configure.ac b/configure.ac
 index 229a567e1..2a1fb4215 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -579,7 +579,7 @@
+@@ -585,7 +585,7 @@
      PAC_C_MAX_REAL_PRECISION=$LDBL_DIG
    fi
    AC_DEFINE_UNQUOTED([PAC_C_MAX_REAL_PRECISION], $PAC_C_MAX_REAL_PRECISION, [Determine the maximum decimal precision in C])
@@ -11,10 +11,10 @@ index 229a567e1..2a1fb4215 100644
  
  ## We will output an include file for Fortran, H5config_f.inc which
  ## contains various configure definitions used by the Fortran Library.
-@@ -3379,29 +3379,43 @@
- ## The machine's conversion gets the correct value.  We define the macro and disable
+@@ -3446,29 +3446,34 @@
  ## this kind of test until we figure out what algorithm they use.
  ##
+ ## CROSS-COMPILING: Assume 'no'
 -AC_MSG_CHECKING([if using special algorithm to convert long double to (unsigned) long values])
 +#AC_MSG_CHECKING([if using special algorithm to convert long double to (unsigned) long values])
  
@@ -31,17 +31,8 @@ index 229a567e1..2a1fb4215 100644
 -   AC_CACHE_VAL([hdf5_cv_ldouble_to_long_special],
 -        [AC_RUN_IFELSE(
 -            [AC_LANG_SOURCE([$TEST_SRC])]
--    , [hdf5_cv_ldouble_to_long_special=yes], [hdf5_cv_ldouble_to_long_special=no],)])
+-    , [hdf5_cv_ldouble_to_long_special=yes], [hdf5_cv_ldouble_to_long_special=no], [hdf5_cv_ldouble_to_long_special=no])])
 -fi
-+#if test ${ac_cv_sizeof_long_double} = 0; then
-+#   hdf5_cv_ldouble_to_long_special=${hdf5_cv_ldouble_to_long_special=no}
-+#else
-+#   AC_CACHE_VAL([hdf5_cv_ldouble_to_long_special],
-+#        [AC_RUN_IFELSE(
-+#            [AC_LANG_SOURCE([$TEST_SRC])]
-+#    , [hdf5_cv_ldouble_to_long_special=yes], [hdf5_cv_ldouble_to_long_special=no],)])
-+#fi
-+
 +AC_CACHE_CHECK([if using special algorithm to convert long double to (unsigned) long values],
 +               [hdf5_cv_ldouble_to_long_special], [
 +  if test ${ac_cv_sizeof_long_double} != 16 -o ${ac_cv_sizeof_long} != 8 -o ${ac_cv_c_bigendian} != yes; then
@@ -68,10 +59,10 @@ index 229a567e1..2a1fb4215 100644
  fi
  
  ## ----------------------------------------------------------------------
-@@ -3412,25 +3426,39 @@
- ## ..., 7fffff..., the compiler uses a unknown algorithm.  We define a
+@@ -3480,25 +3485,30 @@
  ## macro and skip the test for now until we know about the algorithm.
  ##
+ ## CROSS-COMPILING: Assume 'no'
 -AC_MSG_CHECKING([if using special algorithm to convert (unsigned) long to long double values])
 +#AC_MSG_CHECKING([if using special algorithm to convert (unsigned) long to long double values])
  
@@ -84,17 +75,8 @@ index 229a567e1..2a1fb4215 100644
 -   AC_CACHE_VAL([hdf5_cv_long_to_ldouble_special],
 -        [AC_RUN_IFELSE(
 -            [AC_LANG_SOURCE([$TEST_SRC])]
--    , [hdf5_cv_long_to_ldouble_special=yes], [hdf5_cv_long_to_ldouble_special=no],)])
+-    , [hdf5_cv_long_to_ldouble_special=yes], [hdf5_cv_long_to_ldouble_special=no], [hdf5_cv_long_to_ldouble_special=no])])
 -fi
-+#if test ${ac_cv_sizeof_long_double} = 0; then
-+#   hdf5_cv_long_to_ldouble_special=${hdf5_cv_long_to_ldouble_special=no}
-+#else
-+#   AC_CACHE_VAL([hdf5_cv_long_to_ldouble_special],
-+#        [AC_RUN_IFELSE(
-+#            [AC_LANG_SOURCE([$TEST_SRC])]
-+#    , [hdf5_cv_long_to_ldouble_special=yes], [hdf5_cv_long_to_ldouble_special=no],)])
-+#fi
-+
 +AC_CACHE_CHECK([if using special algorithm to convert (unsigned) long to long double values],
 +               [hdf5_cv_long_to_ldouble_special], [
 +  if test ${ac_cv_sizeof_long_double} != 16 -o ${ac_cv_sizeof_long} != 8 -o ${ac_cv_c_bigendian} != yes; then
@@ -121,10 +103,10 @@ index 229a567e1..2a1fb4215 100644
  fi
  
  ## ----------------------------------------------------------------------
-@@ -3444,24 +3472,39 @@
- ## 0x4351ccf385ebc8a0ffcc... will make the converted values wildly wrong.
+@@ -3513,24 +3523,31 @@
  ## This test detects this wrong behavior and disable the test.
  ##
+ ## CROSS-COMPILING: Assume 'yes'
 -AC_MSG_CHECKING([if correctly converting long double to (unsigned) long long values])
 +#AC_MSG_CHECKING([if correctly converting long double to (unsigned) long long values])
  
@@ -136,16 +118,8 @@ index 229a567e1..2a1fb4215 100644
 -else
 -   AC_CACHE_VAL([hdf5_cv_ldouble_to_llong_accurate],
 -        [AC_RUN_IFELSE([AC_LANG_SOURCE([$TEST_SRC])],
--        [hdf5_cv_ldouble_to_llong_accurate=yes], [hdf5_cv_ldouble_to_llong_accurate=no],[])])
+-        [hdf5_cv_ldouble_to_llong_accurate=yes], [hdf5_cv_ldouble_to_llong_accurate=no], [hdf5_cv_ldouble_to_llong_accurate=yes])])
 -fi
-+#if test ${ac_cv_sizeof_long_double} = 0; then
-+#   hdf5_cv_ldouble_to_llong_accurate=${hdf5_cv_ldouble_to_llong_accurate=no}
-+#else
-+#   AC_CACHE_VAL([hdf5_cv_ldouble_to_llong_accurate],
-+#        [AC_RUN_IFELSE([AC_LANG_SOURCE([$TEST_SRC])],
-+#        [hdf5_cv_ldouble_to_llong_accurate=yes], [hdf5_cv_ldouble_to_llong_accurate=no],[])])
-+#fi
-+
 +AC_CACHE_CHECK([if correctly converting long double to (unsigned) long long values],
 +               [hdf5_cv_ldouble_to_llong_accurate], [
 +  if test ${ac_cv_sizeof_long_double} != 16 -o ${ac_cv_sizeof_long_long} == 0; then
