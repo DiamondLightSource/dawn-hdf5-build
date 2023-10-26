@@ -53,7 +53,7 @@ set_arch_envs() {
     l_arch=$1
     export ARCH=$l_arch
     if [ $l_arch == "x86_64" ]; then
-        export GLOBAL_CFLAGS="-fPIC -O3 -m64 -msse4 -mavx2" # or -mcpu=haswell, at least Intel Haswell or AMD Excavator (4th gen Bulldozer)
+        export GLOBAL_CFLAGS="-fPIC -O3 -m64"
     elif [ $l_arch == "arm64" ]; then
         export GLOBAL_CFLAGS="-fPIC -O3 -mcpu=cortex-a53" # at least ARM Cortex-A53 (e.g. RPi 3 Model B or Zero W 2)
     else

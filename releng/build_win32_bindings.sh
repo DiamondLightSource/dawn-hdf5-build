@@ -36,10 +36,10 @@ export PATH="$MY_MINGW_ENV_DIR"/bin:"$PATH" # add universal C runtime compilers
 
 case $ARCH in
   aarch64)
-    export GLOBAL_CFLAGS="-fPIC -O3 -march=armv8-a" # at least ARM Cortex-A53 (e.g. RPi 3 Model B or Zero W 2)
+    export GLOBAL_CFLAGS="-fPIC -O3"
     ;;
   x86_64|*)
-    export GLOBAL_CFLAGS="-fPIC -O3 -m64 -msse4 -mavx2" # at least Intel Haswell or AMD Excavator (4th gen Bulldozer)
+    export GLOBAL_CFLAGS="-fPIC -O3 -m64"
     ;;
 esac
 

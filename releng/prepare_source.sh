@@ -18,7 +18,6 @@ if [ ! -d "${HDF5_DIR}" ]; then
   pushd "${HDF5_DIR}"
 
   ln -s ../releng .
-  patch -p1 < releng/autoconf.patch
   patch -p1 < releng/javacmake.patch
   patch -p1 < releng/hdf5-H5.patch
   popd

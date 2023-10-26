@@ -15,8 +15,10 @@ rm -rf hdf5-build
 mkdir -p hdf5-build
 pushd hdf5-build
 
-if [ -z "$TESTCOMP" ]; then
+if [ -z "$TESTHDF5" ]; then
     CMAKE_UTESTS=-DBUILD_TESTING=OFF
+else
+    CMAKE_UTESTS="-DHDF5_TEST_PARALLEL=OFF -DHDF5_TEST_FORTRAN=OFF -DHDF5_TEST_CPP=OFF -DHDF5_TEST_JAVA=OFF -DTEST_SHELL_SCRIPTS=OFF"
 fi
 
 if [ $PLAT_OS == "win32" ]; then
@@ -27,9 +29,9 @@ $CMAKE "$CMAKE_OPTS" $CMAKE_UTESTS -DHDF5_BUILD_JAVA=ON -DHDF5_BUILD_TOOLS=ON -D
  -DZLIB_USE_EXTERNAL=OFF -DZLIB_ROOT=$MY \
  -DZLIB_INCLUDE_DIR=$MY/include -DZLIB_LIBRARY=$MY/lib/libz.a \
  -DCMAKE_C_FLAGS="$GLOBAL_CFLAGS -I$MY/include -I$JAVA_HOME/include -I$JAVA_HOME/include/$JAVA_OS" -DCMAKE_EXE_LINKER_FLAGS="-L$MY/lib" -DCMAKE_INSTALL_PREFIX=$H5 \
- -DALLOW_UNSUPPORTED=ON -DHDF5_BUILD_HL_LIB=OFF -DHDF5_BUILD_HL_TOOLS=OFF $CMAKE_WIN32_OPTS -S .. -B .
+ -DALLOW_UNSUPPORTED=ON -DHDF5_BUILD_HL_LIB=OFF -DHDF5_BUILD_HL_GIF_TOOLS=OFF $CMAKE_WIN32_OPTS -S .. -B .
 
-if [ -n "$TESTCOMP" ]; then
+if [ -n "$TESTHDF5" ]; then
     # not necessary on GH actions as runner is not root
     if false; then
         # remove expected exception as root can write into read-only files so no exception gets thrown (see junit-failure.txt)
@@ -37,7 +39,6 @@ if [ -n "$TESTCOMP" ]; then
         mv ${OLD_FILE}.java ${OLD_FILE}.orig
         awk '/testH5Fopen_read_only/{sub(/Test([^\n]*)/, "Test", last)} NR>1 {print last} {last=$0} END {print last}' ${OLD_FILE}.orig > ${OLD_FILE}.java
     fi
-    make check
 fi
 
 if [ $PLAT_OS == "win32" ]; then
@@ -47,7 +48,11 @@ if [ $PLAT_OS == "win32" ]; then
     sed -i -b -r -e "s|(-lkernel32)|$MY_MINGW_ENV_DIR/lib/libwinpthread.a \1|" src/CMakeFiles/hdf5-shared.dir/build.make
 fi
 
-make VERBOSE=1 install
+cmake --build . --verbose
+cmake --install .
+if [ -n "$TESTHDF5" ]; then
+    ctest --verbose
+fi
 popd
 
 popd

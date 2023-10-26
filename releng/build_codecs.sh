@@ -48,12 +48,13 @@ esac
 
 CHECKOUT_DIR=$PWD
 
-MS=$BASE_DIR/build/src
-MY=$BASE_DIR/build/opt/$PLAT_OS/$ARCH
-export MY
-
-mkdir -p "$MS"
+if [ -z "$MY" ]; then
+  export MY=$BASE_DIR/build/opt/$PLAT_OS/$ARCH
+  export MS=$BASE_DIR/build/src
+fi
 mkdir -p "$MY"
+mkdir -p "$MS"
+
 
 rm -rf "$MY/bin" "$MY/lib"
 
@@ -103,13 +104,18 @@ fi
 make install
 popd
 
+if [ $ARCH == "x86_64" ]; then
+    LOCAL_CFLAGS="$GLOBAL_CFLAGS -m64 -msse4 -mavx2" # at least Intel Haswell or AMD Excavator (4th gen Bulldozer)
+else
+    LOCAL_CFLAGS="$GLOBAL_CFLAGS -march=armv8-a" # at least ARM Cortex-A53 (e.g. RPi 3 Model B or Zero W 2)
+fi
 
 download_check_extract_pushd lz4-$LZ4_VER v${LZ4_VER}.tar.gz $LZ4_CHK "$LZ4_URL"
 make clean
 if [ -n "$TESTCOMP" ]; then
-    make CFLAGS="$GLOBAL_CFLAGS" PREFIX=$MY test
+    make CFLAGS="$LOCAL_CFLAGS" PREFIX=$MY test
 fi
-make CFLAGS="$GLOBAL_CFLAGS" PREFIX=$MY install
+make CFLAGS="$LOCAL_CFLAGS" PREFIX=$MY install
 rm -f $MY/lib/liblz4.${LIBEXT}*
 popd
 
@@ -118,7 +124,7 @@ download_check_extract_pushd $LZF_SRC ${LZF_SRC}.tar.gz $LZF_CHK "$LZF_URL"
 if [ $PLAT_OS == "win32" ]; then
     patch_if_needed $CHECKOUT_DIR/releng/liblzf-mingw64.patch
 fi
-CFLAGS=$GLOBAL_CFLAGS ./configure --prefix=$MY $CROSS_HOST
+CFLAGS=$LOCAL_CFLAGS ./configure --prefix=$MY $CROSS_HOST
 make clean
 make install
 popd
@@ -134,9 +140,9 @@ if [ $PLAT_OS == "macos" -a $ARCH == "x86_64" ]; then
 fi
 make clean
 if [ -n "$TESTCOMP" ]; then
-    PATH=$MY/bin:$PATH make CFLAGS="$GLOBAL_CFLAGS -I$MY/include" LDFLAGS="-L$MY/lib" HAVE_LZMA=0 PREFIX=$MY test
+    PATH=$MY/bin:$PATH make CFLAGS="$LOCAL_CFLAGS -I$MY/include" LDFLAGS="-L$MY/lib" HAVE_LZMA=0 PREFIX=$MY test
 fi
-LDFLAGS="-L$MY/lib" make CFLAGS="$GLOBAL_CFLAGS -I$MY/include" HAVE_LZMA=0 PREFIX=$MY install
+LDFLAGS="-L$MY/lib" make CFLAGS="$LOCAL_CFLAGS -I$MY/include" HAVE_LZMA=0 PREFIX=$MY install
 rm -f $MY/lib/libzstd.${LIBEXT}*
 popd
 
@@ -153,13 +159,13 @@ if [ -z "$TESTCOMP" ]; then
 fi
 $CMAKE "$CMAKE_OPTS" -DCMAKE_INSTALL_PREFIX=$MY -DPREFER_EXTERNAL_LZ4=ON -DPREFER_EXTERNAL_ZLIB=ON -DPREFER_EXTERNAL_ZSTD=ON \
 -DLZ4_INCLUDE_DIR=$MY/include -DLZ4_LIBRARY=$MY/lib/liblz4.a -DZSTD_INCLUDE_DIR=$MY/include -DZSTD_LIBRARY=$MY/lib/libzstd.a \
--DCMAKE_C_FLAGS="$GLOBAL_CFLAGS -I$MY/include" -DCMAKE_EXE_LINKER_FLAGS="-L$MY/lib" -DZLIB_ROOT=$MY -DLZ4_ROOT=$MY -DZstd_ROOT=$MY \
+-DCMAKE_C_FLAGS="$LOCAL_CFLAGS -I$MY/include" -DCMAKE_EXE_LINKER_FLAGS="-L$MY/lib" -DZLIB_ROOT=$MY -DLZ4_ROOT=$MY -DZstd_ROOT=$MY \
 $CMAKE_DEACTIVATE_X86_64 $CMAKE_NO_TESTS  -S .. -B .
-make clean
+cmake --build . --clean-first --verbose
 if [ -n "$TESTCOMP" ]; then
-    make VERBOSE=1 test
+    ctest --verbose
 fi
-make install
+cmake --install .
 
 CB_ANY_FILES="$MY/lib/libblosc?${LIBEXT}*"
 if [ -n "$CB_ANY_FILES" ]; then
