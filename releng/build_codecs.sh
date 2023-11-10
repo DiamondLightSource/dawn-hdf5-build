@@ -48,8 +48,10 @@ esac
 
 CHECKOUT_DIR=$PWD
 
-if [ -z "$MY" ]; then
+if [ "$MY" == "${MY/$ARCH/}" ]; then # arch does not match (for cross-compiling)
   export MY=$BASE_DIR/build/opt/$PLAT_OS/$ARCH
+fi
+if [ -z "$MS" ]; then
   export MS=$BASE_DIR/build/src
 fi
 mkdir -p "$MY"
