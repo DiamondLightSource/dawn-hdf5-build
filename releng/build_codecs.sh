@@ -10,8 +10,8 @@
 
 # codecs' version and checksum
 ZLIB_URL="https://www.zlib.net"
-ZLIB_VER=1.3
-ZLIB_CHK=ff0ba4c292013dbc27530b3a81e1f9a813cd39de01ca5e0f8bf355702efa593e
+ZLIB_VER=1.3.1
+ZLIB_CHK=9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23
 
 LZ4_URL="https://github.com/lz4/lz4/archive/refs/tags"
 LZ4_VER=1.9.4
@@ -78,7 +78,9 @@ download_check_extract_pushd() {
         exit 1
       fi
     fi
+    set +e # Allow this to exit with non-zero for win32 strangeness
     tar xzf $DL_TARBALL
+    set -e
   fi
   pushd $DL_SRC
 }
