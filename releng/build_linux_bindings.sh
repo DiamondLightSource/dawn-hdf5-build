@@ -21,10 +21,10 @@ cd $START_DIR
 
 case $ARCH in
   aarch64)
-    export GLOBAL_CFLAGS="-fPIC -O3"
+    export GLOBAL_CFLAGS="-fPIC -O3 -pthread"
     ;;
   x86_64|*)
-    export GLOBAL_CFLAGS="-fPIC -O3 -m64"
+    export GLOBAL_CFLAGS="-fPIC -O3 -pthread -m64"
     ;;
 esac
 

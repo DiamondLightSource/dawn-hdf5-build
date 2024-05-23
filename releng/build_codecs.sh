@@ -10,10 +10,10 @@
 
 # codecs' version and checksum
 ZLIB_URL="https://www.zlib.net"
-ZLIB_VER=1.3
-ZLIB_CHK=ff0ba4c292013dbc27530b3a81e1f9a813cd39de01ca5e0f8bf355702efa593e
+ZLIB_VER=1.3.1
+ZLIB_CHK=9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23
 
-LZ4_URL="https://github.com/lz4/lz4/archive/refs/tags"
+LZ4_URL="https://github.com/lz4/lz4/releases/download"
 LZ4_VER=1.9.4
 LZ4_CHK=0b0e3aa07c8c063ddf40b082bdf7e37a1562bda40a0ff5272957f3e987e0e54b
 
@@ -22,12 +22,12 @@ LZF_SRC=liblzf-3.6
 LZF_CHK=9c5de01f7b9ccae40c3f619d26a7abec9986c06c36d260c179cedd04b89fb46a
 
 ZSTD_URL="https://github.com/facebook/zstd/releases/download"
-ZSTD_VER=1.5.5
-ZSTD_CHK=9c4396cc829cfae319a6e2615202e82aad41372073482fce286fac78646d3ee4
+ZSTD_VER=1.5.6
+ZSTD_CHK=8c29e06cf42aacc1eafc4077ae2ec6c6fcb96a626157e0593d5e82a34fd403c1
 
 CB_URL="https://github.com/Blosc/c-blosc/archive/refs/tags"
-CB_VER=1.21.5
-CB_CHK=32e61961bbf81ffea6ff30e9d70fca36c86178afd3e3cfa13376adec8c687509
+CB_VER=1.21.6
+CB_CHK=9fcd60301aae28f97f1301b735f966cc19e7c49b6b4321b839b4579a0c156f38
 
 ZLIB_64=--64
 
@@ -112,7 +112,8 @@ else
     LOCAL_CFLAGS="$GLOBAL_CFLAGS -march=armv8-a" # at least ARM Cortex-A53 (e.g. RPi 3 Model B or Zero W 2)
 fi
 
-download_check_extract_pushd lz4-$LZ4_VER v${LZ4_VER}.tar.gz $LZ4_CHK "$LZ4_URL"
+LZ4_SRC=lz4-$LZ4_VER
+download_check_extract_pushd $LZ4_SRC ${LZ4_SRC}.tar.gz $LZ4_CHK "$LZ4_URL/v$LZ4_VER"
 make clean
 if [ -n "$TESTCOMP" ]; then
     make CFLAGS="$LOCAL_CFLAGS" PREFIX=$MY test

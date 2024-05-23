@@ -17,7 +17,7 @@ fi
 brew install coreutils # for readlink and realpath
 brew install openjdk@11
 
-export MACOSX_DEPLOYMENT_TARGET=10.9 # minimum macOS version Mavericks for XCode 12.1+
+export MACOSX_DEPLOYMENT_TARGET=10.13 # minimum macOS version Mavericks for XCode 14+
 
 if [ -z "$HOMEBREW_PREFIX" ]; then
     HOMEBREW_PREFIX=$(realpath $(dirname $(which brew))/..)

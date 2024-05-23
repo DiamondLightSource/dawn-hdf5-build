@@ -27,7 +27,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: macos-12 # For >= Big Sur, to compile for Apple Silicon
+    runs-on: macos-14 # For >= Sonoma (on M1), can target 10.13 (High Sierra)
 
     steps:
       - uses: actions/checkout@v4
@@ -46,12 +46,12 @@ jobs:
         with:
           limit-access-to-actor: true
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: hdf5-build-macos
           path: dist
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: hdf5-java-source
           path: dist-src
