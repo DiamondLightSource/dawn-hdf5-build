@@ -1,33 +1,32 @@
 # From https://github.com/facebook/zstd/pull/1916
 #
-diff -ur zstd-1.5.2/lib/Makefile zstd-1.5.2-new/lib/Makefile
---- zstd-1.5.2/lib/Makefile	2022-01-20 21:17:18.000000000 +0000
-+++ zstd-1.5.2-new/lib/Makefile	2022-06-24 11:43:07.526887440 +0100
-@@ -249,7 +249,7 @@
+diff -ur zstd-1.5.6/lib/Makefile zstd-1.5.6-new/lib/Makefile
+--- zstd-1.5.6/lib/Makefile	2024-03-21 22:05:51.000000000 +0000
++++ zstd-1.5.6-new/lib/Makefile	2024-05-24 09:45:03.617182422 +0100
+@@ -261,7 +261,7 @@
  #-----------------------------------------------------------------------------
  # make install is validated only for below listed environments
  #-----------------------------------------------------------------------------
--ifneq (,$(filter $(UNAME),Linux Darwin GNU/kFreeBSD GNU OpenBSD FreeBSD NetBSD DragonFly SunOS Haiku AIX))
-+ifneq (,$(filter Linux Darwin GNU/kFreeBSD GNU OpenBSD FreeBSD NetBSD DragonFly SunOS Haiku AIX MSYS% MINGW%,$(UNAME)))
+-ifneq (,$(filter $(UNAME),Linux Darwin GNU/kFreeBSD GNU OpenBSD FreeBSD NetBSD DragonFly SunOS Haiku AIX MSYS_NT CYGWIN_NT))
++ifneq (,$(filter Linux Darwin GNU/kFreeBSD GNU OpenBSD FreeBSD NetBSD DragonFly SunOS Haiku AIX MSYS% MINGW% CYGWIN_NT,$(UNAME)))
  
  lib: libzstd.pc
  
-@@ -267,6 +267,8 @@
+@@ -279,6 +279,7 @@
  LIBDIR      ?= $(libdir)
  includedir  ?= $(PREFIX)/include
  INCLUDEDIR  ?= $(includedir)
-+bindir      ?= $(PREFIX)/bin
-+BINDIR      ?= $(bindir)
++DLLDIR      ?= $(PREFIX)/bin
  
  PCINCDIR := $(patsubst $(PREFIX)%,%,$(INCLUDEDIR))
  PCLIBDIR := $(patsubst $(EXEC_PREFIX)%,%,$(LIBDIR))
-@@ -331,8 +333,13 @@
+@@ -343,8 +344,13 @@
  	[ -e $(DESTDIR)$(LIBDIR) ] || $(INSTALL) -d -m 755 $(DESTDIR)$(LIBDIR)/
  	@echo Installing shared library
  	$(INSTALL_PROGRAM) $(LIBZSTD) $(DESTDIR)$(LIBDIR)
 +ifneq (,$(filter MSYS% MINGW%,$(UNAME)))
-+	@$(INSTALL) -d -m 755 $(DESTDIR)$(BINDIR)/
-+	@$(INSTALL_PROGRAM) $(LIBZSTD) $(DESTDIR)$(BINDIR)
++	@$(INSTALL) -d -m 755 $(DESTDIR)$(DLLDIR)/
++	@$(INSTALL_PROGRAM) $(LIBZSTD) $(DESTDIR)$(DLLDIR)
 +else
  	ln -sf $(LIBZSTD) $(DESTDIR)$(LIBDIR)/libzstd.$(SHARED_EXT_MAJOR)
  	ln -sf $(LIBZSTD) $(DESTDIR)$(LIBDIR)/libzstd.$(SHARED_EXT)
@@ -35,42 +34,44 @@ diff -ur zstd-1.5.2/lib/Makefile zstd-1.5.2-new/lib/Makefile
  
  .PHONY: install-includes
  install-includes:
-@@ -345,9 +352,14 @@
+@@ -357,8 +363,13 @@
  .PHONY: uninstall
  uninstall:
  	$(RM) $(DESTDIR)$(LIBDIR)/libzstd.a
+-	$(RM) $(DESTDIR)$(LIBDIR)/libzstd.$(SHARED_EXT)
+-	$(RM) $(DESTDIR)$(LIBDIR)/libzstd.$(SHARED_EXT_MAJOR)
 +ifneq (,$(filter MSYS% MINGW%,$(UNAME)))
 +	@$(RM) $(DESTDIR)$(BINDIR)/$(LIBZSTD)
 +	@$(RM) $(DESTDIR)$(LIBDIR)/libzstd.dll.a
 +else
- 	$(RM) $(DESTDIR)$(LIBDIR)/libzstd.$(SHARED_EXT)
- 	$(RM) $(DESTDIR)$(LIBDIR)/libzstd.$(SHARED_EXT_MAJOR)
- 	$(RM) $(DESTDIR)$(LIBDIR)/$(LIBZSTD)
++	$(RM) $(DESTDIR)$(DLLDIR)/libzstd.$(SHARED_EXT)
++	$(RM) $(DESTDIR)$(DLLDIR)/libzstd.$(SHARED_EXT_MAJOR)
 +endif
+ 	$(RM) $(DESTDIR)$(LIBDIR)/$(LIBZSTD)
  	$(RM) $(DESTDIR)$(PKGCONFIGDIR)/libzstd.pc
  	$(RM) $(DESTDIR)$(INCLUDEDIR)/zstd.h
- 	$(RM) $(DESTDIR)$(INCLUDEDIR)/zstd_errors.h
-diff -ur zstd-1.5.2/Makefile zstd-1.5.2-new/Makefile
---- zstd-1.5.2/Makefile	2022-01-20 21:17:18.000000000 +0000
-+++ zstd-1.5.2-new/Makefile	2022-06-24 11:33:22.382308061 +0100
-@@ -149,7 +149,7 @@
+diff -ur zstd-1.5.6/Makefile zstd-1.5.6-new/Makefile
+--- zstd-1.5.6/Makefile	2024-03-21 22:05:51.000000000 +0000
++++ zstd-1.5.6-new/Makefile	2024-05-24 09:30:49.246432791 +0100
+@@ -151,8 +151,7 @@
  #------------------------------------------------------------------------------
  # make install is validated only for Linux, macOS, Hurd and some BSD targets
  #------------------------------------------------------------------------------
--ifneq (,$(filter $(shell uname),Linux Darwin GNU/kFreeBSD GNU OpenBSD FreeBSD DragonFly NetBSD MSYS_NT Haiku AIX))
+-ifneq (,$(filter $(shell uname),Linux Darwin GNU/kFreeBSD GNU OpenBSD FreeBSD DragonFly NetBSD MSYS_NT CYGWIN_NT Haiku AIX))
+-
 +ifneq (,$(filter Linux Darwin GNU/kFreeBSD GNU OpenBSD FreeBSD DragonFly NetBSD MSYS_NT Haiku AIX MSYS% MINGW%,$(shell uname)))
- 
  HOST_OS = POSIX
  
-diff -ur zstd-1.5.2/programs/Makefile zstd-1.5.2-new/programs/Makefile
---- zstd-1.5.2/programs/Makefile	2022-01-20 21:17:18.000000000 +0000
-+++ zstd-1.5.2-new/programs/Makefile	2022-06-24 11:42:11.564164547 +0100
-@@ -335,7 +335,7 @@
+ MKDIR ?= mkdir -p
+diff -ur zstd-1.5.6/programs/Makefile zstd-1.5.6-new/programs/Makefile
+--- zstd-1.5.6/programs/Makefile	2024-03-21 22:05:51.000000000 +0000
++++ zstd-1.5.6-new/programs/Makefile	2024-05-24 09:31:31.602578536 +0100
+@@ -345,7 +345,7 @@
  #-----------------------------------------------------------------------------
  # make install is validated only for Linux, macOS, BSD, Hurd and Solaris targets
  #-----------------------------------------------------------------------------
--ifneq (,$(filter $(UNAME),Linux Darwin GNU/kFreeBSD GNU OpenBSD FreeBSD NetBSD DragonFly SunOS Haiku AIX))
-+ifneq (,$(filter Linux Darwin GNU/kFreeBSD GNU OpenBSD FreeBSD NetBSD DragonFly SunOS Haiku AIX MSYS% MINGW%,$(UNAME)))
+-ifneq (,$(filter $(UNAME),Linux Darwin GNU/kFreeBSD GNU OpenBSD FreeBSD NetBSD DragonFly SunOS Haiku AIX MSYS_NT CYGWIN_NT))
++ifneq (,$(filter Linux Darwin GNU/kFreeBSD GNU OpenBSD FreeBSD DragonFly NetBSD MSYS_NT Haiku AIX MSYS% MINGW%,$(shell uname)))
  
  HAVE_COLORNEVER = $(shell echo a | egrep --color=never a > /dev/null 2> /dev/null && echo 1 || echo 0)
  EGREP_OPTIONS ?=

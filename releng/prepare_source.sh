@@ -1,25 +1,23 @@
 # 
 
-HDF5_SER=1.14
-HDF5_VER=${HDF5_SER}.3
-HDF5_CHK=9425f224ed75d1280bb46d6f26923dd938f9040e7eaebf57e66ec7357c08f917
+HDF5_VER=1.14.5
+HDF5_CHK=ec2e13c52e60f9a01491bb3158cb3778c985697131fc6a342262d32a26e58e44
 HDF5_DIR=hdf5-${HDF5_VER}
-HDF5_TAR=${HDF5_DIR}.tar.bz2
+HDF5_TGZ=${HDF5_DIR}.tar.gz
 
-if [ ! -f ${HDF5_TAR} ]; then
-
-  curl -fsSLO "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${HDF5_SER}/hdf5-${HDF5_VER}/src/${HDF5_TAR}"
-  echo "${HDF5_CHK} ${HDF5_TAR}" | sha256sum -c -
-
+if [ ! -f ${HDF5_TGZ} ]; then
+  curl -fsSLO "https://github.com/HDFGroup/hdf5/releases/download/hdf5_${HDF5_VER}/${HDF5_TGZ}"
+  echo "${HDF5_CHK} ${HDF5_TGZ}" | sha256sum -c -
 fi
 
 if [ ! -d "${HDF5_DIR}" ]; then
-  tar xjf "${HDF5_TAR}"
+  tar xzf "${HDF5_TGZ}"
   pushd "${HDF5_DIR}"
 
   ln -s ../releng .
   patch -p1 < releng/javacmake.patch
   patch -p1 < releng/hdf5-H5.patch
+  patch -p1 < releng/hdf5-win32-msys.patch
   popd
 fi
 

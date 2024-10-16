@@ -1,0 +1,11 @@
+--- hdf5-1.14.5/src/H5win32defs.h.orig	2024-09-30 17:07:53.000000000 +0100
++++ hdf5-1.14.5/src/H5win32defs.h	2024-10-16 16:27:11.025458217 +0100
+@@ -59,7 +59,7 @@
+  */
+ #if (defined(_MSC_VER) && !defined(_MSVC_TRADITIONAL)) || defined(_MSVC_TRADITIONAL)
+ /* Using the MSVC traditional preprocessor */
+-#define HDopen(S, F, ...) Wopen(S, F, __VA_ARGS__)
++#define HDopen(S, F, ...) Wopen(S, F, ##__VA_ARGS__)
+ #else
+ /* Using a standards conformant preprocessor */
+ #define HDopen(S, F, ...) Wopen(S, F, ##__VA_ARGS__)

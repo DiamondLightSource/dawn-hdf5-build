@@ -46,8 +46,8 @@ jobs:
         with:
           limit-access-to-actor: true
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: hdf5-build-linux
+          name: hdf5-build-linux-${{ matrix.ARCH }}
           path: dist
 
