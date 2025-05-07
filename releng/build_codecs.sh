@@ -78,7 +78,9 @@ download_check_extract_pushd() {
         exit 1
       fi
     fi
+    set +e # Allow this to exit with non-zero for win32 strangeness
     tar xzf $DL_TARBALL
+    set -e
   fi
   pushd $DL_SRC
 }

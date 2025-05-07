@@ -22,6 +22,15 @@ on:
         required: false
         default: false
 
+  # Reusable workflow
+  workflow_call:
+    inputs:
+      cross_build:
+        description: 'Cross compile for universal2 (n/y)'
+        required: false
+        default: n
+        type: string
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
