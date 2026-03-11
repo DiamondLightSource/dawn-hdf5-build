@@ -46,7 +46,7 @@ fi
 
 . releng/prepare_source.sh
 
-MACOS_SO_VER=310
+MACOS_SO_VER=320
 H5_DYLIB=libhdf5.$MACOS_SO_VER.dylib
 H5_JAVA_DYLIB=libhdf5_java.$MACOS_SO_VER.dylib
 
@@ -151,4 +151,4 @@ else
 fi
 
 # Copy Java source to be archived
-cp -a ${HDF5_SRC}/java/src ${JAVA_SRC_OUTPUT_DIR}/
+cp -a ${HDF5_SRC}/java/src-jni/hdf ${JAVA_SRC_OUTPUT_DIR}/

@@ -10,20 +10,20 @@
 
 # codecs' version and checksum
 ZLIB_URL="https://www.zlib.net"
-ZLIB_VER=1.3.1
-ZLIB_CHK=9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23
+ZLIB_VER=1.3.2
+ZLIB_CHK=bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16
 
 LZ4_URL="https://github.com/lz4/lz4/releases/download"
-LZ4_VER=1.9.4
-LZ4_CHK=0b0e3aa07c8c063ddf40b082bdf7e37a1562bda40a0ff5272957f3e987e0e54b
+LZ4_VER=1.10.0
+LZ4_CHK=537512904744b35e232912055ccf8ec66d768639ff3abe5788d90d792ec5f48b
 
 LZF_URL="http://dist.schmorp.de/liblzf"
 LZF_SRC=liblzf-3.6
 LZF_CHK=9c5de01f7b9ccae40c3f619d26a7abec9986c06c36d260c179cedd04b89fb46a
 
 ZSTD_URL="https://github.com/facebook/zstd/releases/download"
-ZSTD_VER=1.5.6
-ZSTD_CHK=8c29e06cf42aacc1eafc4077ae2ec6c6fcb96a626157e0593d5e82a34fd403c1
+ZSTD_VER=1.5.7
+ZSTD_CHK=eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3
 
 CB_URL="https://github.com/Blosc/c-blosc/archive/refs/tags"
 CB_VER=1.21.6

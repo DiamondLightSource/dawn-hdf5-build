@@ -27,8 +27,8 @@ if [ $PLAT_OS == "win32" ]; then
     # TODO, to fix missing vasprintf, add -DH5_HAVE_VASPRINTF:INTERNAL=0 or use -D_GNU_SOURCE
 fi
 
-$CMAKE "$CMAKE_OPTS" $CMAKE_UTESTS -DBUILD_STATIC_LIBS=OFF -DALLOW_UNSUPPORTED=ON -DHDF5_BUILD_JAVA=ON -DHDF5_BUILD_TOOLS=ON -DHDF5_ENABLE_THREADSAFE=ON \
- -DHDF5_ENABLE_Z_LIB_SUPPORT=ON -DHDF5_BUILD_EXAMPLES=OFF -DHDF5_BUILD_HL_LIB=OFF -DHDF5_BUILD_HL_GIF_TOOLS=OFF -DHDF5_ENABLE_SZIP_SUPPORT=OFF $CMAKE_WIN32_OPTS \
+$CMAKE "$CMAKE_OPTS" $CMAKE_UTESTS -DBUILD_STATIC_LIBS=OFF -DHDF5_ALLOW_UNSUPPORTED=ON -DHDF5_BUILD_JAVA=ON -DHDF5_BUILD_TOOLS=ON -DHDF5_ENABLE_THREADSAFE=ON \
+ -DHDF5_ENABLE_ZLIB_SUPPORT=ON -DHDF5_BUILD_EXAMPLES=OFF -DHDF5_BUILD_HL_LIB=OFF -DHDF5_ENABLE_SZIP_SUPPORT=OFF $CMAKE_WIN32_OPTS \
  -DZLIB_USE_EXTERNAL=OFF -DZLIB_ROOT=$MY -DZLIB_INCLUDE_DIR=$MY/include -DZLIB_LIBRARY=$MY/lib/libz.a \
  -DCMAKE_C_FLAGS="$GLOBAL_CFLAGS -D_MSVC_TRADITIONAL=0 -I$MY/include -I$JAVA_HOME/include -I$JAVA_HOME/include/$JAVA_OS" -DCMAKE_EXE_LINKER_FLAGS="-L$MY/lib" -DCMAKE_INSTALL_PREFIX=$H5 \
  -S .. -B .
@@ -48,13 +48,15 @@ if [ $PLAT_OS == "win32" ]; then
     sed -i -b -r -e "s|(-lkernel32)|$MY_MINGW_ENV_DIR/lib/libwinpthread.a \1|" src/CMakeFiles/hdf5-shared.dir/build.make
 fi
 
-cmake --build . --verbose
-cmake --install .
+$CMAKE --build . --verbose
+$CMAKE --install .
 if [ -n "$TESTHDF5" ]; then
     ctest --verbose
 fi
 popd
 
+# Make copy for source archive
+cp -p hdf5-build/java/src-jni/hdf/hdf5lib/H5Version.java java/src-jni/hdf/hdf5lib/
 popd
 
 JARFILE="$H5/lib/jarhdf5-*.jar"
@@ -66,9 +68,9 @@ mkdir -p $DEST
 cp $JARFILE $DEST
 shopt -s extglob # to use extended glob (needs to be outside if statement)
 if [ $PLAT_OS == "win32" ]; then
-    cp -H $H5/bin/hdf5.${LIBEXT} $DEST
-    cp $H5/bin/hdf5_java.${LIBEXT} $DEST
-    mv $H5/lib/hdf5.lib $H5/lib/libhdf5.dll.a # rename import library so filter plugins can link to DLL
+    cp -H $H5/bin/libhdf5.${LIBEXT} $DEST
+    cp $H5/bin/libhdf5_java.${LIBEXT} $DEST
+    #mv $H5/lib/hdf5.lib $H5/lib/libhdf5.dll.a # rename import library so filter plugins can link to DLL
 elif [ $PLAT_OS == "macos" ]; then
     cp -H $H5/lib/libhdf5.+([0-9]).${LIBEXT} $DEST
     cp $H5/lib/libhdf5_java.${LIBEXT} $DEST
