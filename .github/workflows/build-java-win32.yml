@@ -5,9 +5,9 @@ name: Build Windows Java OSGi bundles for use in Dawn
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   #push:
-  #  branches: [ master ]
+  #  branches: [ main ]
   #pull_request:
-  #  branches: [ master ]
+  #  branches: [ main ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -28,7 +28,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Make Windows bindings
         run: |
@@ -41,7 +41,7 @@ jobs:
         with:
           limit-access-to-actor: true
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: hdf5-build-win32
           path: dist

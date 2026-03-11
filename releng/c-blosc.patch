@@ -1,14 +1,27 @@
 diff -ur c-blosc-1.21.2/CMakeLists.txt c-blosc-1.21.2-new/CMakeLists.txt
 --- c-blosc-1.21.2/CMakeLists.txt	2022-12-07 10:34:44.000000000 +0000
 +++ c-blosc-1.21.2-new/CMakeLists.txt	2023-05-15 13:21:19.500442564 +0100
-@@ -156,7 +156,9 @@
+@@ -72,10 +72,7 @@
+ #    DEV: static includes blosc.a and blosc.h
+ 
+ 
+-cmake_minimum_required(VERSION 2.8.12)
+-if(NOT CMAKE_VERSION VERSION_LESS 3.3)
+-    cmake_policy(SET CMP0063 NEW)
+-endif()
++cmake_minimum_required(VERSION 3.5)
+ 
+ # parse the full version numbers from blosc.h
+ file(READ ${CMAKE_CURRENT_SOURCE_DIR}/blosc/blosc.h _blosc_h_contents)
+@@ -162,7 +159,9 @@
  if(NOT DEACTIVATE_ZLIB)
      # import the ZLIB_ROOT environment variable to help finding the zlib library
      if(PREFER_EXTERNAL_ZLIB)
 -        set(ZLIB_ROOT $ENV{ZLIB_ROOT})
-+		if(NOT DEFINED ZLIB_ROOT)
-+			set(ZLIB_ROOT $ENV{ZLIB_ROOT})
-+		endif()
++        if(NOT DEFINED ZLIB_ROOT)
++            set(ZLIB_ROOT $ENV{ZLIB_ROOT})
++        endif()
          find_package(ZLIB)
          if(NOT ZLIB_FOUND )
              message(STATUS "No zlib found.  Using internal sources.")
+

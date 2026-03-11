@@ -48,13 +48,15 @@ if [ $PLAT_OS == "win32" ]; then
     sed -i -b -r -e "s|(-lkernel32)|$MY_MINGW_ENV_DIR/lib/libwinpthread.a \1|" src/CMakeFiles/hdf5-shared.dir/build.make
 fi
 
-cmake --build . --verbose
-cmake --install .
+$CMAKE --build . --verbose
+$CMAKE --install .
 if [ -n "$TESTHDF5" ]; then
     ctest --verbose
 fi
 popd
 
+# Make copy for source archive
+cp -p hdf5-build/java/src-jni/hdf/hdf5lib/H5Version.java java/src-jni/hdf/hdf5lib/
 popd
 
 JARFILE="$H5/lib/jarhdf5-*.jar"
@@ -66,9 +68,9 @@ mkdir -p $DEST
 cp $JARFILE $DEST
 shopt -s extglob # to use extended glob (needs to be outside if statement)
 if [ $PLAT_OS == "win32" ]; then
-    cp -H $H5/bin/hdf5.${LIBEXT} $DEST
-    cp $H5/bin/hdf5_java.${LIBEXT} $DEST
-    mv $H5/lib/hdf5.lib $H5/lib/libhdf5.dll.a # rename import library so filter plugins can link to DLL
+    cp -H $H5/bin/libhdf5.${LIBEXT} $DEST
+    cp $H5/bin/libhdf5_java.${LIBEXT} $DEST
+    #mv $H5/lib/hdf5.lib $H5/lib/libhdf5.dll.a # rename import library so filter plugins can link to DLL
 elif [ $PLAT_OS == "macos" ]; then
     cp -H $H5/lib/libhdf5.+([0-9]).${LIBEXT} $DEST
     cp $H5/lib/libhdf5_java.${LIBEXT} $DEST

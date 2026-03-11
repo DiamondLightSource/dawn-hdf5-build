@@ -1,5 +1,5 @@
---- a/java/src/hdf/hdf5lib/H5.java
-+++ b/java/src/hdf/hdf5lib/H5.java
+--- a/java/src-jni/hdf/hdf5lib/H5.java
++++ b/java/src-jni/hdf/hdf5lib/H5.java
 @@ -13,6 +13,9 @@
  package hdf.hdf5lib;
  
@@ -10,12 +10,12 @@
  import java.nio.ByteBuffer;
  import java.util.Collection;
  import java.util.LinkedHashSet;
-@@ -351,10 +354,15 @@ public class H5 implements java.io.Serializable {
+@@ -358,10 +361,15 @@
  
          // else load standard library
          if (!isLibraryLoaded) {
 +            String osName = System.getProperty("os.name");
-+            String libNameFormat = osName.startsWith("Mac OS X") ? "%s.310" : "%s"; // need to do this to minimise build differences
++            String libNameFormat = osName.startsWith("Mac OS X") ? "%s.320" : "%s"; // need to do this to minimise build differences
              try {
 +                // to need to preload dependent library (as its internal link is wrong most of the time)
 +                System.loadLibrary(String.format(libNameFormat, "hdf5"));
@@ -27,7 +27,7 @@
                  isLibraryLoaded = true;
              }
              catch (Throwable err) {
-@@ -389,6 +397,83 @@ public class H5 implements java.io.Serializable {
+@@ -396,6 +404,83 @@
          if ((majnum != null) && (minnum != null) && (relnum != null)) {
              H5.H5check_version(majnum.intValue(), minnum.intValue(), relnum.intValue());
          }
@@ -111,4 +111,4 @@
      }
  
      // ////////////////////////////////////////////////////////////
-
+ 
