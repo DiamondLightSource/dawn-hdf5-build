@@ -22,10 +22,10 @@ jobs:
         include:
           - ARCH: x86_64
             OS: ubuntu-24.04
-            PLAT: "2014"
+            PLAT: "_2_28"
           - ARCH: aarch64
             OS: ubuntu-24.04-arm
-            PLAT: "2014"
+            PLAT: "_2_28"
 
     # The type of runner that the job will run on
     runs-on: ${{ matrix.OS }}
@@ -35,10 +35,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v6
 
-      # Use docker image of Centos 6 or 7 with some devel packages as defined in PEP571 and PEP599
+      # Use docker image of AlmaLinux 8 with some devel packages as defined in PEP571 and PEP599
       - name: Make Linux bindings (${{ matrix.ARCH }})
         run: |
-          docker run --rm --env="ARCH=${{ matrix.ARCH }}" --env="PLAT_OS=linux" --volume $(pwd):/io ghcr.io/diamondlightsource/manylinux-dls-${{ matrix.PLAT }}_${{ matrix.ARCH }}:latest /bin/bash /io/releng/build_linux_bindings.sh
+          docker run --rm --env="ARCH=${{ matrix.ARCH }}" --env="PLAT_OS=linux" --volume $(pwd):/io quay.io/pypa/manylinux${{ matrix.PLAT }}_${{ matrix.ARCH }}:latest /bin/bash /io/releng/build_linux_bindings.sh
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
