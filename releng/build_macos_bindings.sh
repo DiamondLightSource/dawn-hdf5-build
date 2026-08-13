@@ -14,8 +14,9 @@ if [ -z "$CROSS_BUILD" ]; then
     CROSS_BUILD=n
 fi
 
-brew install coreutils # for readlink and realpath
-brew install openjdk@11
+brew untap aws/tap # this tap is not trusted
+brew install coreutils # for realpath
+brew install --cask temurin@11
 
 export MACOSX_DEPLOYMENT_TARGET=10.13 # minimum macOS version Mavericks for XCode 14+
 
@@ -23,7 +24,7 @@ if [ -z "$HOMEBREW_PREFIX" ]; then
     HOMEBREW_PREFIX=$(realpath $(dirname $(which brew))/..)
 fi
 
-export JAVA_HOME=$HOMEBREW_PREFIX/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home
+export JAVA_HOME=$HOMEBREW_PREFIX/opt/openjdk/libexec/openjdk.jdk/Contents/Home
 export CPPFLAGS="-I$JAVA_HOME/include"
 
 export PATH="$JAVA_HOME/bin:$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
