@@ -9,9 +9,9 @@
 # define TESTCOMP to test compression (takes a long time)
 
 # codecs' version and checksum
-ZLIB_URL="https://www.zlib.net"
-ZLIB_VER=1.3.2
-ZLIB_CHK=bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16
+ZLIB_URL="https://github.com/zlib-ng/zlib-ng/archive/refs/tags"
+ZLIB_VER=2.3.3
+ZLIB_CHK=f9c65aa9c852eb8255b636fd9f07ce1c406f061ec19a2e7d508b318ca0c907d1
 
 LZ4_URL="https://github.com/lz4/lz4/releases/download"
 LZ4_VER=1.10.0
@@ -95,10 +95,9 @@ patch_if_needed() {
 # fetch, build and install compression libraries
 pushd $MS
 
-ZLIB_SRC=zlib-$ZLIB_VER
-download_check_extract_pushd $ZLIB_SRC ${ZLIB_SRC}.tar.gz $ZLIB_CHK "$ZLIB_URL"
+download_check_extract_pushd zlib-ng-$ZLIB_VER ${ZLIB_VER}.tar.gz $ZLIB_CHK "$ZLIB_URL"
 # unpack and compile static
-CFLAGS="$GLOBAL_CFLAGS" ./configure --prefix=$MY $ZLIB_64 --static
+CFLAGS="$GLOBAL_CFLAGS" ./configure --prefix=$MY $ZLIB_64 --static --zlib-compat
 make clean
 if [ -n "$TESTCOMP" ]; then
     make check

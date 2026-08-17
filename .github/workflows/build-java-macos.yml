@@ -30,7 +30,7 @@ jobs:
     runs-on: macos-14 # For >= Sonoma (on M1), can target 10.13 (High Sierra)
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Make macOS bindings
         env:
@@ -40,7 +40,7 @@ jobs:
           ./releng/build_macos_bindings.sh
 
       - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+        uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 # v3.24
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
         # if: ${{ failure() }}
         with:

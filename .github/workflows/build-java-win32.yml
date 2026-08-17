@@ -28,14 +28,14 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Make Windows bindings
         run: |
           C:\msys64\usr\bin\bash.exe -lc 'export PATH=/c/msys64/mingw64/bin:/c/msys64/usr/bin:"$PATH"; cd "$GITHUB_WORKSPACE" && ./releng/build_win32_bindings.sh'
 
       - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+        uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 # v3.24
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
         # if: ${{ failure() }}
         with:
